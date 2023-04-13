@@ -1,21 +1,24 @@
+symbolicOutput(0).  % set to 1 for DEBUGGING: to see symbolic output only; 0 otherwise.
 
-symbolicOutput(0).  % set to 1 to see symbolic output only; 0 otherwise.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% We want to schedule a series of events within the next few days.
-%% Due to the nature of the events, each event should have a moderator
-%% assigned to it. There is a limit on the number of events per day
-%% and also on the amount of days where events with the same moderator
-%% can take place. Finally, we have a list of possible moderators and
-%% days for every event.
+%% Each event should have a moderator assigned to it. There is a limit
+%% on the number of events per day and also on the amount of days
+%% where events with the same moderator can take place. Finally, we
+%% have a list of possible moderators and days for every event.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%% input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%% begin input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 numEvents(15).
 numDays(4).
 numModerators(4).
 maxEventsPerDay(4).
 maxDaysPerModerator(2).
 
-%event(id,listPossibleModerators,listPossibleDays).
+%event( id, listPossibleModerators, listPossibleDays).
 event(1, [  2  ,4],[  2    ]).
 event(2, [1,  3  ],[1,2,  4]).
 event(3, [1,2  ,4],[    3  ]).
@@ -32,49 +35,62 @@ event(13,[1,  3,4],[1,2    ]).
 event(14,[  2,3  ],[1,  3,4]).
 event(15,[  2  ,4],[  2,3  ]).
 
-%%%%%% Some helpful definitions to make the code cleaner:
+%%%%%%% end input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%% Some helpful definitions to make the code cleaner: ====================================
+
 event(E):-             event(E,_,_).
 eventModerators(E,M):- event(E,M,_).
 eventDays(E,D):-       event(E,_,D).
 day(D):-               numDays(N), between(1,N,D).
 moderator(M):-         numModerators(N), between(1,N,M).
 
-%%%%%%  SAT Variables:
-satVariable( ed(E,D) ) :- event(E), day(D).
-satVariable( em(E,M) ):- event(E), moderator(M).
-satVariable( md(M,D) ) :- moderator(M), day(D).
+%%%%%%% End helpful definitions ===============================================================
 
-writeClauses:-
-    eachEventOKModerator,
-	eachModeratorAtMostMaxDays,
-	eachEventExactlyOneOKDay,
-	eachDaysatMostMaxEvents,
-	eachEventPossibleDaysAndModerator,
-    true,!.                    % this way you can comment out ANY previous line of writeClauses
-writeClauses:- told, nl, write('writeClauses failed!'), nl,nl.
 
-eachEventPossibleDaysAndModerator:- moderator(M), day(D), event(E), 
-                                    writeOneClause([-em(E,M), -ed(E,D), md(M,D)]),fail.
-                                    % (em(E,M) ^ ed(E,D) -> md(M,D))
-                                    % -(em(E,M) ^ ed(E,D)) v md(M,D))
-                                    % -em(E,M) v - ed(E,D) v md(M,D)
+%%%%%%%  1. SAT Variables: ====================================================================
 
-eachEventPossibleDaysAndModerator.
+satVariable( ed(E,D) ):-  event(E), day(D).   %% Complete this!
+satVariable( em(E,M) ):-  event(E), moderator(M).
+satVariable( md(M,D) ):- satVariable( ed(E,D)) , satVariable(em(E,M)).
 
-eachEventExactlyOneOKDay:- event(E), findall(ed(E,D), (eventDays(E,LD),member(D,LD)), Lits), exactly(1,Lits),fail.
-eachEventExactlyOneOKDay.
+%%%%%%%  2. Clause generation for the SAT solver: =============================================
 
-eachEventOKModerator:- event(E), findall(em(E,M), (eventModerators(E,LM), member(M,LM)),Lits),exactly(1,Lits),fail.
-eachEventOKModerator.
+writeClauses:-  
+    cadaEventUnDia,
+    cadaEventUnModerador,
+    maxEventPerDia,
+    maxDiesModerador,
+    lliguemVariables,
+    restrictEventModerator,
+    restrictEventDay,
+    true,!.
+writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-eachModeratorAtMostMaxDays:- moderator(M), maxDaysPerModerator(A),findall(md(M,D), day(D), Lits), atMost(A,Lits),fail.
-eachModeratorAtMostMaxDays.
+cadaEventUnDia:- event(E), findall(ed(E,D), (eventDays(E,Ds),member(D,Ds)),Lits), exactly(1,Lits),fail.
+cadaEventUnDia.
 
-eachDaysatMostMaxEvents:- day(D), maxEventsPerDay(A), findall(ed(E,D), event(E), Lits), atMost(A,Lits),fail.
-eachDaysatMostMaxEvents.
- 
-%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% show the solution. Here M contains the literals that are true in the model:
+cadaEventUnModerador:- event(E), findall(em(E,M), (eventModerators(E,Ms),member(M,Ms)),Lits), exactly(1,Lits),fail.
+cadaEventUnModerador.
+
+maxEventPerDia:- maxEventsPerDay(Max), day(D), findall(ed(E,D),event(E),Lits), atMost(Max,Lits),fail.
+maxEventPerDia.
+
+maxDiesModerador:- maxDaysPerModerator(Max), moderator(M), findall(md(M,D), day(D),Lits), atMost(Max,Lits),fail.
+maxDiesModerador.
+
+restrictEventModerator:- event(E), eventModerators(E,Ms), moderator(M), not(member(M,Ms)), writeOneClause([-em(E,M)]),fail.
+restrictEventModerator.
+
+restrictEventDay:- event(E), eventDays(E,Ds), day(D), not(member(D,Ds)), writeOneClause([-ed(E,D)]),fail. 
+restrictEventDay.
+
+lliguemVariables:- moderator(M) , day(D), event(E), writeOneClause([-em(E,M),-ed(E,D),md(M,D)]),fail.
+lliguemVariables.
+
+
+%%%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
 % displaySol(M):- nl, write(M), nl, nl, fail.
 displaySol(M):-
