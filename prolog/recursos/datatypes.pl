@@ -40,6 +40,11 @@ subsetWithRest([], [], []).
 subsetWithRest([E|Tail], [E|STail], Rest):-subsetWithRest(Tail, STail, Rest).
 subsetWithRest([X|Tail], STail, [X|Rest]):-subsetWithRest(Tail, STail, Rest).
 
+%%subsetOfSize(N,L,S). Creates all subsets S of L that have a size of N
+subsetOfSize(0,_,[]):-!.
+subsetOfSize(N,[X|L],[X|S]):- N1 is N-1, length(L,Leng), Leng>=N1, subsetOfSize(N1,L,S).
+subsetOfSize(N,[_|L],   S ):-            length(L,Leng), Leng>=N,  subsetOfSize( N,L,S).
+
 subseq([], []).
 subseq([_|Xs], Ys) :-
     subseq(Xs, Ys).
