@@ -7,15 +7,14 @@ subconjunto([E|Tail], [E|NTail]):-
 subconjunto([_|Tail], NTail):-
     subconjunto(Tail, NTail).
 
-checkAll(_,[],_).
-checkAll(X,[Y|S],L):- A is [X,Y], B is [Y,X], not(member(A,L)),not(member(B,L)),checkAll(X,S,L).
+subsetOfSize(0,_,[]):-!.
+subsetOfSize(N,[X|L],[X|S]):- N1 is N-1, length(L,Leng), Leng>=N1, subsetOfSize(N1,L,S).
+subsetOfSize(N,[_|L],   S ):-            length(L,Leng), Leng>=N,  subsetOfSize( N,L,S).
 
-check([], _).
+checkAll(X,[],_).
+checkAll(X,[Y|S],L):- not(member([X,Y],L)),not(member([Y,X],L)),checkAll(X,S,L).
+
+check([],_).
 check([X|S], L):- checkAll(X, S, L), check(S,L).
 
-li(N,M,L,S):- genList(N,L1), subconjunto(L1,S), length(S, X), X == M, check(S, L).
-
-%li( 20, 4, [[8,11],[8,15],[11,6],[4,9],[18,13],[7,9],[16,8],[18,10],[6,17],[8,20]], S )
-
-% auxMember([],[1,2,3,4]).
-% auxMember([],[1,2,3,4]).
+li(N,M,L,S):- genList(N,L1), subsetOfSize(M,L1,S), check(S,L).
