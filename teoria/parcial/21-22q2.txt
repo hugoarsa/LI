@@ -1,0 +1,135 @@
+--------------------------------------------------------------------------------------------------
+Logic in Computer Science, April 1st, 2022. Time: 1h30min. No books or lecture notes allowed.
+--------------------------------------------------------------------------------------------------
+-Insert your answers on the dotted lines ... below, and only there.
+-Do NOT modify the problems or the @nota lines.
+-When finished, upload this file with the same name: exam.txt
+-Use the text symbols:     &     v    -       ->          |=        A       E
+   for                    AND   OR   NOT   IMPLIES   "SATISFIES"  FORALL  EXISTS  etc.,  like in:
+   I  |=  p & (q v -r)     (the interpretation I satisfies the formula p & (q v -r)  ).
+   You can write subindices using "_". For example write x_i to denote x-sub-i.
+--------------------------------------------------------------------------------------------------
+
+
+Problem 1. (4 points).                                   @n@nota1:
+
+
+1a)
+Let F and G be propositional formulas such that G |= F.  Is it true that then always  F |= G  or  F |= -G ?
+Prove it as simply as you can using only the definitions of propositional logic.
+
+Doesn't seem fine, for example we can contemplate at formulas:
+
+G: p 
+F: p v -p
+
+further proof from the teachers:
+
+Then G |= F, because for the only model I of G, the interpretation I where I(p)=1, we have I|=F (in fact, F is a tautology).
+But F not|=  G:  if  I(p)=0  we have  I |= F  but  I not|=  G.
+And F not|= -G:  if  I(p)=1  we have  I |= F  but  I not|= -G.
+
+1b)
+
+OJO PIOJO AQUI CON EL OR EN LENGUAJE NATURAL QUE HA DE SER ASI PQ NO RELACIONA BOOLEANOS SINO 
+EXPRESIONES DE LENGUAJE NATURAL, SE SIGUE PUDIENDO APLICAR ALGEBRA DE BOOL PERO NO ACABA DE 
+SER ASI
+
+Let F and G be propositional formulas.
+Is it true that F |= G iff  F & -G  is unsatisfiable?
+Prove it using only the definitions of propositional logic.
+
+Let's start left to right trying to find a bridge between the expressions with only definitions.
+
+F |= G 			 		ssi
+A I, I |= F implies I |= G		ssi
+A I, I -|= F or I |= G 			ssi
+A I, eval(F) = 0 or eval(G) = 1 	ssi
+A I, eval(F) = 0 or 1-eval(G) = 0	ssi
+A I, min(eval(F), 1-eval(G)) = 0	ssi
+A I, eval(F v -G) = 0			ssi
+A I, I -|= (F v -G)			ssi
+F v -G unsat
+
+--------------------------------------------------------------------------------------------------
+
+Problem 2. (3 points).                                   @n@nota2:
+
+
+2a) Explain in a few words why propositional SAT is in NP.
+
+Basically this has to do with the two requirements to be inside NP:
+
+First of all, you have to be able to generate a candidate of polinomial size compared to 
+the problem. 
+Which in our case would be the interpretation of a specific propositional SAT formula
+
+Second of all, you have to be able to evaluate that candidate in polinomial time, which in our
+case also is possible as we only would have to evaluate if that specific intepretation satisfies
+the formula. All that can be done in linear time.
+
+2b) Explain in a few words why 3-SAT is NP-complete. You may assume that SAT is NP-hard.
+
+The definition of NP hardness revolves around the fact that all problems of NP can be reduced 
+in polinomial time to that specific problem.
+
+So if we find a reduction from SAT to 3-SAT, 3-SAT would be NP-hard, as SAT is already
+NP-hard.
+
+We have a polinomial reduction in Tseitin so we can reduce any SAT problem to 3-SAT.
+
+3-SAT is NP for the same reasons as SAT.
+
+2c) Let F be an UNsatisfiable propositional formula built over n different predicate symbols.
+Give the name of some method to express a proof (or certificate) of unsatisfiability (like a model is a 
+certificate of satisfiability).
+Do you think that every unsatisfiable F has such an unsatisfiability proof of size polynomial in n?
+
+We could use the refutational completeness of resolution in order to find [] in Res(S), but
+times are not polinomial.
+
+Or for example, the full backtracking tree of a backtracking-based SAT algorithm is an unsatisfiability certificate. 
+
+
+--------------------------------------------------------------------------------------------------
+
+Problem 3. (2 points).                                   @n@nota3:
+Here just give the answer, giving no explanations. Use a^b to denote "a to the power b".
+
+
+3a)
+How many Boolean functions with n input bits f: {0,1}^n --> {0,1} are there in terms of n?
+
+Combinations {0,1} words over 2^n symbols. So 4^n
+
+
+3b)
+Any propositional formula represents a Boolean function.
+List the names of the other methods you know to represent Boolean functions.
+
+tables of truth, cicuit boards, implication graphs, expression trees
+
+
+3c)
+Is it true that two formulas F and G are logically equivalent iff they represent the same Boolean function?
+
+yes
+
+
+--------------------------------------------------------------------------------------------------
+
+Problem 4. (1 point ).                                   @n@nota4:
+
+4) The published Sudoku puzzles usually are designed in such a way that exactly one solution exists.
+Explain *very* briefly how you would use a SAT solver to check that a given Sudoku has exactly one solution.
+
+I would do a reduction from sudoku to sat and check satisfactibility, then the model i would be given
+would be introduced negated as a clause in order to see if there are any more of them. It would be 
+unsat.
+
+
+--------------------------------------------------------------------------------------------------
+
+
+
+

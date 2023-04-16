@@ -172,8 +172,9 @@ eval(p) = 1 then I |= (p v C) & (-p v D) -> I |= p v C -> I |= C -> I |= C v D
 Yes because there's a refutational completeness with resolution that makes it so
 S is insat <-> [] belongs to Res(S), we could use the contrareciproco to do the same
 
-And since the closure under resolution of an initial set S, Res(S) can be computed in a 
-finite number of steps we are safe
+Res(S), the closure under Resolution of an initial set of clauses S,
+can be computed in a finite time because there are a finite number
+of different clauses.
 
 
 --------------------------------------------------------------------------------------------------
@@ -185,17 +186,22 @@ Problem 4. (2 points).                                     @n@nota4:
 
 4a) Write the clauses needed to encode this constraint using no auxiliary variables.
 
-...
+   These 5 clauses:
+   x1 v x2 v x3 v x4
+   x1 v x2 v x3      v x5
+   x1 v x2      v x4 v x5
+   x1      v x3 v x4 v x5
+        x2 v x3 v x4 v x5
 
 
 4b) In general, in terms of n and k, how many clauses are needed to encode a cardinality
     constraint x1 + . . . + xn >= k using no auxiliary variables? (give no explanations here).
-
-...
-
+    
+   One clause for each way to choose (n-k+1) literals from a set of n literals:
+   Binomial n choose (n-k+1)    [ n! / ((n-k+1)!*(k-1)!) clauses ]
 
 4c) Write at least two names of any other encoding you know for cardinality constraints,
     encodings that do use auxiliary variables.
 
-...
+Sorting Tables, Ladder Encoding
 
