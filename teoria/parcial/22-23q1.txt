@@ -18,14 +18,36 @@ Problem 1. (3 points).                                     @n@nota1:
     F satisfiable, then G is satisfiable?
     Prove it using only the formal definitions of propositional logic.
 
-...
+F -> G is tautology  			ssi [def. tautology]
+A I, I is model of F -> G 	 	ssi [def. model]
+A I, I |= F -> G		 	ssi [def. |=]
+A I, evalI(F -> G) = 1		 	ssi [def. ->]
+A I, evalI(-F v G) = 1		 	ssi [def. v]
+A I, max(evalI(-F),evalI(G)) = 1 	ssi [def. -]
+A I, max(1-evalI(F),evalI(G)) = 1 	ssi [add both on the *]
 
+F is satisfactible			ssi [def. sat]
+E I, I is model of F			ssi [def. model]
+E I, I |= F				ssi [def. |=]
+E I, evalI(F) = 1			ssi [add both on the *]
+
+E I, evalI(F) = 1 and max(1-evalI(F),evalI(G)) = 1 ssi [arithmetic transformations]
+E I, max(1 - 1, evalI(G)) = 1 		ssi [max properties]
+E I, evalI(G) = 1			ssi [def. |= and model]
+E I, I is model of G			ssi [def. SAT]
+G is sat
 
 1b) Give an example of formulas F1, F2, and F3 such that F1 & F2 & F3 is unsatisfiable
     and any conjuction of two of then is satisfiable.
 
-...
-
+    For example, consider P={p,q} and the formulas:
+      F1 = -p v q
+      F2 = p
+      F3 = -q
+    The interpretation I(p)=1 I(q)=1 satisfies  F1 & F2
+    The interpretation I(p)=0 I(q)=0 satisfies  F1 & F3
+    The interpretation I(p)=1 I(q)=0 satisfies  F2 & F3
+    But F1 & F2 & F3 is unsatisfiable
 
 
 --------------------------------------------------------------------------------------------------
@@ -43,7 +65,40 @@ a) Describe a linear-time algorithm for NEG-SAT when the input formula
          C contains contradictory literals, i.e., p and -p for
          some variable p, can be done in linear time.
 
-...
+This algorithm would basically turn the CNF formula into a DNF (because of demorgan)
+so there would be a lineal time algorithm that could be used in order to determine SAT.
+
+The algoritm goes as it follows:
+Since all the clauses are connected with "v" as long as we find a single sat clause we 
+have a sat formula (because if C is sat C v F is sat too!)
+
+Proof:
+DNF sat <-> Ci clause is sat <-> No contradictory literals in Ci 
+
+Time: 
+linear transformation with demorgan, linear search of contradictory literals -> O(n)
+
+solution given by the teachers: it's the same but they use an algorythm for demonstrating
+tautology of F (which implies that -F is insat), basically the negated version of my algorithm
+
+    The algorithm works as follows. Let F be the input CNF. If F is the
+    empty set of clauses, then F is a tautology, and hence we return NO.
+    Otherwise we take a clause C of F. If there is a pair of contradictory
+    literals in C, then C is a tautology that can be discarded, and the
+    algorithm starts again with the resulting formula. Otherwise we can build
+    an interpretation I that falsifies C by setting to false all the literals
+    in C. This interpretation also falsifies F, and so we return YES.
+
+    The algorithm is correct because when we return YES, we have indeed
+    found an interpretation that falsifies F. For the reverse implication,
+    if there exists I such that I |= -F, then there exists C ∈ F such that
+    I |= -C. The algorithm will return YES when this clause is processed.
+
+    Since detecting contradictory literals can be done in linear time and
+    we just need to make one pass over the formula, the algorithm is linear.
+
+The algorithm goes as it follows:
+For every clause we check for contradictory literals with lineal time
 
 b) Let us call CNF-NEG-SAT the linear-time algorithm of the previous
    exercise for NEG-SAT when the input formula is in CNF:
@@ -75,7 +130,16 @@ b) Let us call CNF-NEG-SAT the linear-time algorithm of the previous
 
    The algorithm MY-SAT is NOT correct. Prove it giving a counterexample.
 
-...
+solution from teachers:
+
+    (could have got it but got caught following useless leads)
+    First of all notice that the Tseitin transformation G of any formula
+    is of the form p & G', where G' is some CNF and p is the auxiliary
+    propositional variable representing the root of the formula tree. So
+    for any interpretation I such that I(p) = 0 we will have not(I |= G),
+    i.e., I |= -G. So in algorithm MY-SAT(F), the call CNF-NEG-SAT(G)
+    always returns YES, independently of F. In particular, even if F is
+    unsatisfiable (for example, q & -q), MY-SAT(F) will return YES.
 
 
 
@@ -92,19 +156,24 @@ Problem 3. (2.5 points).                                   @n@nota3:
 
 3a) Given n propositional symbols, how many different clauses are there (seen as sets of literals)?
 
-...
-
+4^n
 
 3c) Is Resolution a correct deductive rule:  (p v C) & (-p v D) |= C v D  for any p, C, D?
     Prove it.
 
-...
+we could study this with cases:
 
+eval(p) = 0 then I |= (p v C) & (-p v D) -> I |= -p v D -> I |= D -> I |= C v D
+
+eval(p) = 1 then I |= (p v C) & (-p v D) -> I |= p v C -> I |= C -> I |= C v D
 
 3c) Can Resolution be used to decide SAT? Briefly explain why o why not?
 
-...
+Yes because there's a refutational completeness with resolution that makes it so
+S is insat <-> [] belongs to Res(S), we could use the contrareciproco to do the same
 
+And since the closure under resolution of an initial set S, Res(S) can be computed in a 
+finite number of steps we are safe
 
 
 --------------------------------------------------------------------------------------------------
