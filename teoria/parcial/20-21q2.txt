@@ -1,0 +1,98 @@
+----------------------------------------------------------------------------------------------------------
+1) (3 points) Prove your answers using only the formal definitions of propositional logic.
+1a) Is it true that if F, G, H are formulas such that F & G not|= H then F ∧ G ∧ H is unsatisfiable?
+
+F & G not|= H 
+E I, I |= F & G and I not|= H
+E I, min(eval(F),eval(G)) = 1 and eval(H) = 0
+
+... I dont see any relation getting closer so I'm going to look for counter examples
+
+A I, min(eval(F),eval(G),eval(H)) = 0
+F & G & H is unsat
+
+F: p v -r
+G: p
+H: -q
+
+1b) Let F be a tautology, and let G an unsatisfiable formula. Is it true true that F ∧ ¬G is a
+tautology?
+
+It is true, let me demonstrate
+
+F tatut and G unsat iff A I, eval(F) = 1 and eval(G) = 0 
+
+A I, min(eval(F),1 - eval(G)) = 1
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------
+2) (2 points) The problem called “minOnes” takes as input a natural number k and a propositional
+formula F over propositional variables {x1 . . . , xn }. Its aim is to decide if there is any model I of F
+with at most k ones, that is, any model I such that I(x1 ) + . . . + I(xn ) ≤ k.
+Answer in a few words: Is minOnes NP-hard? Why?
+
+Yes it is because we can codify that problem in SAT, which is known to be a NP-complete problem (so NP-hard 
+and NP).
+
+The codification would be the following. We could use several options depending on the number of new variables
+and clauses we want to introduce.
+
+We would make a CNF with all the different clauses being a representative of each variable (n variables) minus 
+k plus one, all in positive form. In that case for all clauses to be true, there had to be at least k elements
+at one on the specific model.
+
+----------------------------------------------------------------------------------------------------------
+3) (2 points) Every propositional formula F over n variables can also expressed by a Boolean circuit
+with n inputs and one output. In fact, sometimes the circuit can be much smaller than F because
+each subformula only needs to be represented once. For example, if F is
+x1 ∧ (x3 ∧ x4 ∨ x3 ∧ x4 ) ∨ x2 ∧ (x3 ∧ x4 ∨ x3 ∧ x4 ),
+a circuit C for F with only five gates exists. Giving names ai to the output wires of each logical gate,
+and using a0 as the output of C, we can write C as:
+a0 = or(a1,a2)
+a1 = and(x1,a3)
+a2 = and(x2,a3)
+a3 = or(a4,a4)
+a4 = and(x3,x4)
+Explain very briefly what do you think is the best way to use a standard SAT solver for CNFs to
+determine whether two circuits C1 and C2 , represented like this, are logically equivalent.
+Note: assume different names b0 , b1 , b2 . . . are used for the internal wires of C2 .
+
+We could use Tseitin to generate a CNF from that expressions given with the electronic device.
+We can just use the logic gates and replace all equals with iff and simplify. We will get in 
+the end a 3-SAT that we can run in a SAT solver for CNF.
+
+When we get two CNFs S1 and S2 we should try and see with a sat solver:
+
+S1 equiv S2 iff S1 U S2 such that the roots a0 and b0 are the same always iff S1 U S2 U {-a0 v -b0, a0 v b0} is unsat
+
+----------------------------------------------------------------------------------------------------------
+4) (3 points) Consider the cardinality constraint x1 + x2 + x3 + x4 + x5 + x6 ≤ 4 (expressing that at
+most 4 of the propositional symbols {x1 , x2 , x3 , x4 , x5 , x6 } are true).
+
+4a) Write the clauses needed to encode this constraint using no auxiliary variables.
+
+-x1 v -x2 v -x3 v -x4 v -x5
+-x1 v -x2 v -x3 v -x4 v -x6
+-x1 v -x2 v -x3 v -x5 v -x6
+-x1 v -x2 v -x4 v -x5 v -x6
+-x1 v -x3 v -x4 v -x5 v -x6
+-x2 v -x3 v -x4 v -x5 v -x6
+
+4b) In general, in terms of n and k, how many clauses are needed to encode a cardinality constraint
+x1 + . . . + xn ≤ k using no auxiliary variables? (give no explanations here).
+
+todos los posibles subconjuntos de k + 1 que se pueden generar a partir de n elementos 
+
+n!/((k+1)!(n-k-1)!
+
+
+4c) Write the names of any other encoding you know for cardinality constraints x1 + . . . + xn ≤ k,
+an encoding that do use auxiliary variables. In terms of n and k, how many clauses are needed? (give
+no explanations here).
+
+Ladder encoding n*k variables
+Sorting networks nlogn variables 
+
