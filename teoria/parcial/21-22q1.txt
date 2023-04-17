@@ -1,0 +1,188 @@
+--------------------------------------------------------------------------------------------------
+Logic in Computer Science, November 9th, 2021. Time: 1h30min. No books or lecture notes allowed.
+--------------------------------------------------------------------------------------------------
+-Insert your answers on the dotted lines ... below, and only there.
+-Do NOT modify the problems or the @nota lines.
+-When finished, upload this file with the same name: exam.txt
+-Use the text symbols:     &     v    -       ->          |=        A       E
+   for                    AND   OR   NOT   IMPLIES   "SATISFIES"  FORALL  EXISTS  etc.,  like in:
+   I  |=  p & (q v -r)     (the interpretation I satisfies the formula p & (q v -r)  ).
+   You can write subindices using "_". For example write x_i to denote x-sub-i.
+--------------------------------------------------------------------------------------------------
+
+
+Problem 1. (3 points).                                   @n@nota1:
+
+
+1a)
+Let F and G be propositional formulas such that F is satisfiable and F -> G is also satisfiable.
+Is it true that G is satisfiable? Prove it using only the definitions of propositional logic.
+
+F is sat and F -> G is sat			ssi[definition of satisfactibility]
+EXISTS I model of F and F -> G 		ssi[definition of model]
+E I, I |= F and I |= F -> G			ssi[definition of |=]
+E I, eval(F) = 1 and eval(F -> G) = 1		ssi[definition of ->]
+E I, eval(F) = 1 and eval(-F v G) = 1		ssi[definition of and]
+E I, min(eval(F), eval(-F v G)) = 1		ssi[definition of |=]
+
+
+E I, eval(G) = 1
+E I, I |= G
+EXISTS I model of G
+G is sat
+
+Per la demostració que porto fa pinta de fals
+
+F es "p"
+
+G es "q & -q"
+
+F is sat because there exists interpretation p = 1 where it's satisfactible 
+
+F -> G is sat because there exists an interpretation p = 0 and q = 0 v 1 where it's satisfactible
+
+G is unsat because it's a conjunction that has contradictory elements on it
+
+
+1b)
+Let F and G be propositional formulas such that F is a tautology.
+Is it true that  F & G  is logically equivalent to G?
+Prove it using only the definitions of propositional logic.
+
+F & G equivalent G				ssi[definition of equival]
+A I, I |= F & G ssi I |= G
+A I, min(eval(F),eval(G)) = eval(G)
+A I, min(1,eval(G)) = eval(G)			
+A I, eval(G) = eval(G)
+true
+
+F is taut iff A I, I is model of F iff A I, I |= F iff A I, eval(F) = 1
+
+--------------------------------------------------------------------------------------------------
+
+Problem 2. (3 points).                                   @n@nota2:
+
+A 1in3-constraint is an expression of the form  1in3( lit1, lit2, lit3 ) where lit1,lit2 and lit3 are literals.
+An interpretation I satisfies  1in3( lit1, lit2, lit3 )  if it satisfies EXACTLY ONE of lit1, lit2 and lit3.
+The 1in3-SAT problem is the problem of deciding the satisfiability of a conjunction (AND) of 1in3-constraints.
+For example,
+1in3(x,y,z)  &  1in3(-x,-y, z) &  1in3(-x,y,-z)   is satisfiable (if I(x)=1, I(y)=0, I(z)=0 then I is a model)
+but 
+1in3(x,y,z)  &  1in3(-x,-y,-z)   is unsatisfiable.
+
+
+2a) Is 1in3-SAT in NP? Explain in a few words why.
+
+Yes it is, because we can fulfill both of the statements needed for NP class pertinence
+
+We can create a witness that is polinomial in respect to the problem size, which would be an interpretation of 
+the equivalent SAT formula
+
+And we could evaluate that SAT formula in polinomial time.
+
+
+We could also reduce this problem in polynomial time to SAT which is NP-complete, so if we find a reduction to 
+it the problem we are starting from would also be NP.
+
+We could codify those restrictions in sat variables as a CNF formula with an at most 1 and at least 1 which in a 
+no additional clauses codification would result in the following clauses.
+
+1in3(x,y,z) equiv. (x v y v z) & (-x v -y) & (-y v -z) & (-z v -x)
+
+
+2b) Let C be a normal 3-SAT clause  l1 v l2 v l3, where l1,l2,l3 are literals over variables x,y,z.
+    Let F be:   1in3(-l1,a,b)  &  1in3(l2,b,c)  &  1in3(-l3,c,d)   (here a,b,c,d are variables).
+    Check for each one of the 7 possible models I of C that then F has a model I' such
+    that I' "extends" I, that is I(x)=I'(x), I(y)=I'(y), I(z)=I'(z).
+    
+    Similarly, check that for the (unique) I that is NOT a model of C, there is no model I' of F extending I
+    (and therefore every model I' of F extends a model I of C).
+
+
+The seven models I of C are as follows. In each case we show how to extend it to an I' that is a model of F:
+l1 l2 l3     abcd
+ 0  0  1     0010 
+ 0  1  0     0000
+ 0  1  1     0001
+ 1  0  0     0100
+ 1  0  1     0101
+ 1  1  0     1000
+ 1  1  1     1001
+
+If I is not a model of C, then we have I(l1)=I(l2)=I(l3)=0 and by the
+first and last constraints of F, abcd must all be false in I',
+contradicting the second constraint, so there is no model I' of F.
+	
+
+
+2c) Is 1in3-SAT NP-complete? Explain very briefly why. Hint: use 2a) and 2b).
+
+It's NP (because of the first part) and NP-hard (because of the second, since we can express 3-SAT problems to it).
+
+A few more details: for each clause l1 v l2 v l3 in S, we introduce new variables a,b,c,d
+and add 1in3(-l1,a,b) & 1in3(b,l2,c) & 1in3(c,d,-l3) to F.
+Then by 2b) S is satisfiable iff F is satisfiable:
+by 2b) any model I of S can be extended to a model I' of F, and for any model I' of F we
+can find a model of S by just "forgetting" about the new variables.           
+
+
+--------------------------------------------------------------------------------------------------
+
+Problem 3. (3 points).                                   @n@nota3:
+For each one of the following problems, show that it is polynomial by expressing it as (or
+reducing it to) a polynomial version of SAT.  Be very brief: just give the needed SAT variables and
+clauses and say which polynomial SAT problem it is.  If there is no such reduction, just write: "Not possible".
+
+The only type of polinomial version of SAT is 2-SAT
+
+3a) 2-coloring: given an undirected graph G and 2 colors,
+can we assign a color to each node of G such that adyacent nodes get different colors?
+
+I will construct a 2-SAT CNF where each variable will represent a vertex (|v| variables)
+and the interpretation of a variable in a specific model will be it's color (true will 
+stand for color 1 and false will stand for color 2)
+
+Clauses of the CNF
+For each edge e (a,b): (-a v -b) & (a v b)
+
+3b) 3-coloring.
+
+Not possible.
+
+3c) Amazon. Assume
+    M is a list of Amazon products we MUST buy.
+    P is a list of pairs (p,p') of products that are incompatible: we cannot buy p and also p'.
+    R is a list of rules of the form "S needs p", indicating that, if we buy
+          all products in the set of products S, then we must also buy the product p.
+    Given M,P,R, can we buy a set of products satisfying the requirements of M,P,R?
+    
+Not possible.
+
+for every product a variable 
+
+for every element in m a clause with itself alone
+
+for every incompatibility a clause with p -> -p' equiv -p v -p'
+
+for every S {p1...pn} in the list of rules R,  one clause:  (x_p1 & ... & x_pn) -> p equiv. -x_p1 v...v -x_pn v p.
+
+--------------------------------------------------------------------------------------------------
+
+Problem 4. (1 point ).                                   @n@nota4:
+
+4) UNIQUE-SAT is the problem of determining whether a given set of clauses S has exactly one model.
+Explain very briefly how you would use a SAT solver to decide UNIQUE-SAT.
+
+We need at most two calls to the SAT solver:
+Call the solver with input S:
+ -if unsatisfiable, output "no".
+ -if   satisfiable with model I,
+     Add to S the clause forbidding just that model I, and call the solver again:
+       -if satisfiable,   output "no".
+       -if unsatisfiable, output "yes".
+
+The clause forbidding I has the form  x_1 v...v x_n  v  -y_1 v...v -y_m   where the x_i are
+all variables x_i with I(x_i)=0, and the y_j are the variables with I(y_j)=1.
+
+--------------------------------------------------------------------------------------------------
+
