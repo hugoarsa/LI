@@ -1,5 +1,5 @@
 file = miSudoku
-#file = teams
+file = teams
 #file = events
 #file = newBusCompany
 

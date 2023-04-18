@@ -1,4 +1,3 @@
-
 symbolicOutput(0).  % set to 1 for DEBUGGING: to see symbolic output only; 0 otherwise.
 
 
@@ -70,23 +69,55 @@ tooLongDist(C1-C2-C3):-     trip(C1-C2), trip(C2-C3), C1 \= C3, dist(C1-C2,D1), 
 %%%%%%%  1. SAT Variables: ====================================================================
 
 satVariable( bdcc(B,D,C1,C2) ):- bus(B), day(D), trip(C1-C2).  % bus B on day D does C1-C2
-% ... more variables may be needed
-
+satVariable( dcc(D,C1,C2) ):- day(D), trip(C1-C2). % trip C1-C2 is done in day D
 
 %%%%%%%  2. Clause generation for the SAT solver: =============================================
 
 writeClauses:-  
     exactlyOneTripPerBusAndDay,
-    ...
+    noRepeatedTripOnSameDay,
+    atLeastSomeTripsInWeek,
+    noDistanceExceeded,
+    rememberTripBus,
+    relacionar,
     true,!.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-exactlyOneTripPerBusAndDay:- ...
+exactlyOneTripPerBusAndDay:- 
+    bus(B), day(D),
+    findall(bdcc(B,D,C1,C2), trip(C1-C2), Lits),
+    exactly(1, Lits), fail.
 exactlyOneTripPerBusAndDay.
 
-...
+noRepeatedTripOnSameDay:- 
+    day(D),
+    trip(C1-C2),
+    findall(bdcc(B,D,C1,C2), bus(B), Lits),
+    atMost(1, Lits), fail.
+noRepeatedTripOnSameDay.
 
+atLeastSomeTripsInWeek:-
+    trip(C1-C2),
+    findall(dcc(D,C1,C2), day(D), Lits),
+    frequency(C1-C2,F),
+    atLeast(F, Lits), fail.
+atLeastSomeTripsInWeek.
 
+noDistanceExceeded:- 
+    bus(B), day(D), trip(C1-C2), trip(C2-C3), consecutiveDays(D,D2), tooLongDist(C1-C2-C3),
+    writeOneClause([-bdcc(B,D,C1,C2), -bdcc(B,D2,C2,C3)]), fail.
+noDistanceExceeded.
+
+rememberTripBus:-
+    bus(B), day(D), trip(C1-C2), trip(C3-C4), consecutiveDays(D,D2), C2 \= C3,
+    writeOneClause([-bdcc(B,D,C1,C2), -bdcc(B,D2,C3,C4)]), fail.
+rememberTripBus.
+
+relacionar:-
+    day(D), trip(C1-C2),
+    findall(bdcc(B,D,C1,C2), bus(B), Lits),
+    expressOr(dcc(D,C1,C2), Lits), fail.
+relacionar.
 %%%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
 % displaySol(M):- nl, write(M), nl, nl, fail.
@@ -142,7 +173,7 @@ expressOr( Var, Lits ):- symbolicOutput(1), write( Var ), write(' <--> or('), wr
 expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeOneClause([ NLit, Var ]), fail.
 expressOr( Var, Lits ):- negate(Var,NVar), writeOneClause([ NVar | Lits ]),!.
 
-%% expressOr(a,[x,y]) genera 3 clausulas (como en la Transformación de Tseitin):
+%% expressOr(a,[x,y]) genera 3 clausulas (como en la TransformaciÃ³n de Tseitin):
 %% a == x v y
 %% x -> a       -x v a
 %% y -> a       -y v a

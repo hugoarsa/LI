@@ -1,100 +1,143 @@
-
 symbolicOutput(0).  % set to 1 for DEBUGGING: to see symbolic output only; 0 otherwise.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% A company needs to distribute its employees in working teams of size
-%% between minSize and maxSize. In order to avoid fights between them,
-%% the psychology department has computed a score (between 0 and 10) for
-%% each worker. This score estimates her leadership skills. It has been
-%% decided that two workers whose scores sum more than maxScore cannot
-%% be in the same team.
-%%
-%% Complete the following program in order to find a possible team
-%% distribution.
+%% Extend this Prolog source to design a Voleyball League with 14
+%% teams, named x01 ... x14, with 13 rounds (playing days), where every
+%% two teams play against each other exactly once (one team at home and
+%% the other team away), and on each round each team has exactly one match
+%% (at home or away). Moreover, we say that a team has a "double" on
+%% round R if it plays at home on rounds R-1 and on round R, or if it
+%% plays away on rounds R-1 and on round R.
+%% Additional constraints:
+%%  1. No team gets more than one double in the whole league
+%%  2. No doubles on certain rounds
+%%  3. Each team gets either 6 or 7 home matches.
+%%  4. Movistar has bought the tv rights for Saturday Night 8pm for all
+%%     matches among a group of teams (the so-called tvTeams) and wants
+%%     all matches among these teams on different rounds (i.e., no two
+%%     of them on the same round).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%% Example input: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% begin input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-numWorkers(20).
-numTeams(5).  % exact number of teams needed
-minSize(3).   % min size of any team
-maxSize(6).   % max size of any team
-maxScore(14). % two workers whose scores sum more than 14 cannot go together
+teams([x01,x02,x03,x04,x05,x06,x07,x08,x09,x10,x11,x12,x13,x14]). %the team names
+noDoubles([2,13]).                                                %no team gets a double on any of these rounds
+tvTeams([x01,x02,x03,x04,x05]).                                   %all matches between these teams on different rounds
 
-% score(workerId, score)
-score( 1, 2).
-score( 2, 6).
-score( 3, 3).
-score( 4, 4).
-score( 5, 6).
-score( 6, 10).
-score( 7, 2).
-score( 8, 1).
-score( 9, 4).
-score(10, 2).
-score(11, 7).
-score(12, 9).
-score(13, 3).
-score(14, 4).
-score(15, 9).
-score(16, 1).
-score(17, 3).
-score(18, 8).
-score(19, 2).
-score(20, 1).
-
-%%%%%%% End example input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% end input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%% Some helpful definitions to make the code cleaner: ====================================
 
-worker(W):-          numWorkers(N), between(1,N,W).
-workerScore(W,S):-   worker(W), score(W,S).
-team(T):-            numTeams(N), between(1,N,T).
-incompatibleWorkers(W1,W2):- workerScore(W1,S1), workerScore(W2,S2), W1 < W2, maxScore(MS), 
-                             Score is S1 + S2, Score>MS.
+team(T):- teams(Ts), member(T,Ts).
+otherTeam(S,T):- team(T), S\=T.
+round(R):- between(1,13,R).
+tvMatch(S-T):- tvTeams(TV), member(S,TV), member(T,TV), S\=T.
 
 %%%%%%% End helpful definitions ===============================================================
 
 
 %%%%%%%  1. SAT Variables: ====================================================================
 
-% wt(W,T) means "worker W is in team T"
-satVariable( wt(W,T) ):- worker(W), team(T).
+satVariable( match(S,T,R)  ):- round(R), team(S), team(T), S\=T,!. % "on round R there is a match S-T at home of S"
+satVariable( home(S,R)     ):- round(R), team(S), !.               % "team S plays at home on round R"
+satVariable( double(S,R)   ):- round(R), team(S), !.               % "team S has a double on round R"
 
 
 %%%%%%%  2. Clause generation for the SAT solver: =============================================
 
 writeClauses:-
-    eachWorkerOneTeam,
-    eachTeamMinS,
-    eachTeamMaxS,
-    eachTeamCompatible,
-    true,!.
+    eachTeamEachRoundOneMatch,
+    eachOpponentExactlyOnce,
+    homesAndAways,
+    doubleRestriction,
+    noDoubles,                 % to be done
+    atmostOneTVMatchPerRound,  % to be done
+    sixOrSevenHomes,           % to be done
+    atMostOneDouble,           % to be done
+    true.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-eachWorkerOneTeam:- worker(W),findall( wt(W,T),team(T), Lits ), exactly(1,Lits), fail. %fijo W, encuentro todas las tuplas (W,T) con todos los teams posibles
-eachWorkerOneTeam. %esta clausula es para cuando terminamos
+eachTeamEachRoundOneMatch:- 
+    team(S), round(R), 
+    findall( match(S,T,R), otherTeam(S,T), LitsH ),
+    findall( match(T,S,R), otherTeam(S,T), LitsA ),
+    append(LitsH,LitsA,Lits),
+    exactly(1,Lits), fail.
+eachTeamEachRoundOneMatch.
 
-eachTeamMinS:- team(T), findall( wt(W,T), worker(W), Lits), minSize(Size), atLeast(Size,Lits), fail.
-eachTeamMinS.
+eachOpponentExactlyOnce:- 
+    team(S), otherTeam(S,T),
+    findall( match(S,T,R), round(R), LitsH ), 
+    findall( match(T,S,R), round(R), LitsA ), 
+    append(LitsH,LitsA,Lits),
+    exactly(1,Lits), fail.
+eachOpponentExactlyOnce.
 
-eachTeamMaxS:- team(T), findall( wt(W,T), worker(W), Lits), maxSize(Size), atMost(Size,Lits), fail.
-eachTeamMaxS.
+homesAndAways:- 
+    team(S), otherTeam(S,T), round(R),
+    writeOneClause([ -match(S,T,R),  home(S,R) ]), 
+    writeOneClause([ -match(S,T,R), -home(T,R) ]), fail.
+homesAndAways.
 
-eachTeamCompatible:- incompatibleWorkers(W1,W2),team(T), writeOneClause([-wt(W1,T),-wt(W2,T)]), fail.
-eachTeamCompatible.
+noDoubles:- 
+    noDoubles(L), 
+    round(R), 
+    member(R,L), 
+    findall(double(T,R), team(T), Lits), 
+    exactly(0, Lits), 
+    fail.
+noDoubles.
+
+doubleRestriction:- 
+    team(T), 
+    round(R), 
+    R > 1, 
+    R1 is R - 1,
+    %(home(T,R) & home(T,R1)) -> double(T,R)
+    %(-home(T,R) & -home(T,R1)) -> double(T,R)
+    writeOneClause([home(T,R), home(T,R1),  double(T,R)]), 
+    writeOneClause([-home(T,R), -home(T,R1),  double(T,R)]),
+    fail.
+doubleRestriction.
+
+atmostOneTVMatchPerRound:- 
+    round(R),
+    findall(match(S,T,R), tvMatch(S-T), Lits),
+    atMost(1, Lits),
+    fail.
+atmostOneTVMatchPerRound.
+
+sixOrSevenHomes:-  
+    team(S),
+    findall(home(S,R), round(R), Lits),
+    atMost(7,Lits),
+    atLeast(6,Lits),
+    fail.
+sixOrSevenHomes.
+
+atMostOneDouble:-  
+    team(T),
+    findall(double(T,R), round(R),Lits),
+    atMost(1,Lits),
+    fail.
+atMostOneDouble.
+
+
 
 %%%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
-% displaySol(M):- nl, write(M), nl, nl, fail.
-displaySol(M):- team(T), write('Team '), write(T), write(': '), 
-                findall(W-score(S),(member(wt(W,T),M),workerScore(W,S)),L), write(L), 
-                findall(Sc, (member(W1-score(S1),L), member(W2-score(S2),L), W1 \= W2, Sc is S1+S2), ListSums), 
-                max_list(ListSums,Max), write(' ## Max sum of pairs '), write(Max),  nl, fail.
+% displaySol(M):- write(M), nl, fail.
+displaySol(M):- nl, round(R), nl, write(R), write(':  '), member(match(S,T,R), M ), write(S-T), write(' '), fail.
+displaySol(M):- nl,nl,write('Tv matches: '), 
+		round(R), nl, write(R), write(':  '), member(match(S,T,R), M ), tvMatch(S-T), write(S-T), write(' '), fail.
+displaySol(M):- nl,nl,write('Homes: '), team(T),nl, write(T), write(':  '), round(R), writeH(T,R,M), fail.
 displaySol(_):- nl.
+
+writeH(T,R,M):- member(home(T,R),M), write('H'),!.
+writeH(_,_,_):- write('.'),!.
 
 %%%%%%% =======================================================================================
 
