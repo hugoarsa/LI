@@ -1,6 +1,6 @@
 file = miSudoku
-file = teams
-file = events
+#file = teams
+#file = events
 #file = newBusCompany
 
 $(file): $(file).pl

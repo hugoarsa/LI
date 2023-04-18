@@ -1,109 +1,106 @@
-
 symbolicOutput(0).  % set to 1 for DEBUGGING: to see symbolic output only; 0 otherwise.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% A sudoku is a logic-based, combinatorial number-placement puzzle that
-%% uses a partially filled 9x9 grid. The objective is to fill the grid
-%% with the digits 1 to 9, so that each column, each row, and each of the
-%% nine 3x3 blocks contain only one of each digit.
+%% We want to schedule a series of events within the next few days.
+%% Each event should have a moderator assigned to it. There is a limit
+%% on the number of events per day and also on the amount of days
+%% where events with the same moderator can take place. Finally, we
+%% have a list of possible moderators and days for every event.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%% begin input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-entrada([ [-,4,-,  -,-,-,  -,1,-],      %   Solution shown      6 4 3  9 7 5  2 1 8       
-          [-,-,8,  -,3,-,  9,-,-],      %      for this         2 7 8  4 3 1  9 5 6       
-          [-,-,-,  6,8,2,  -,-,-],      %   input example:      5 1 9  6 8 2  3 4 7       
-                                        %                 
-          [3,2,-,  -,6,-,  -,7,9],      %                       3 2 5  8 6 4  1 7 9       
-          [-,-,7,  -,-,-,  4,-,-],      %                       1 8 7  3 5 9  4 6 2       
-          [9,6,-,  -,1,-,  -,8,3],      %                       9 6 4  2 1 7  5 8 3       
-                                        %                                      
-          [-,-,-,  7,9,8,  -,-,-],      %                       4 5 2  7 9 8  6 3 1       
-          [-,-,1,  -,2,-,  7,-,-],      %                       8 3 1  5 2 6  7 9 4       
-          [-,9,-,  -,-,-,  -,2,-] ]).   %                       7 9 6  1 4 3  8 2 5       
+numEvents(15).
+numDays(4).
+numModerators(4).
+maxEventsPerDay(4).
+maxDaysPerModerator(2).
+
+%event( id, listPossibleModerators, listPossibleDays).
+event(1, [  2  ,4],[  2    ]).
+event(2, [1,  3  ],[1,2,  4]).
+event(3, [1,2  ,4],[    3  ]).
+event(4, [1,  3,4],[1,2,  4]).
+event(5, [  2,3,4],[1,  3,4]).
+event(6, [    3,4],[1,2,3  ]).
+event(7, [1,2    ],[1,2,  4]).
+event(8, [1,2  ,4],[    3,4]).
+event(9, [  2,3  ],[1,2,3  ]).
+event(10,[    3,4],[1,2,  4]).
+event(11,[1,2  ,4],[1,2,3  ]).
+event(12,[  2,3  ],[    3,4]).
+event(13,[1,  3,4],[1,2    ]).
+event(14,[  2,3  ],[1,  3,4]).
+event(15,[  2  ,4],[  2,3  ]).
 
 %%%%%%% end input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%% =======================================================================================
-%
-% miSudoku.pl:  simple example of our LI Prolog method for solving problems using a SAT solver.
-% 
-% It generates the SAT clauses, calls the SAT solver, and shows the solution. Just specify:
-%       1. SAT Variables
-%       2. Clause generation
-%       3. DisplaySol: show the solution.
-%
-%%%%%%% =======================================================================================
-
-
 %%%%%%% Some helpful definitions to make the code cleaner: ====================================
 
-row(I):-between(1,9,I).
-col(J):-between(1,9,J).
-val(K):-between(1,9,K).
-
-blockID(Iid,Jid):- member(Iid,[0,1,2]), member(Jid,[0,1,2]).   %there are 9 blocks: 0-0 1-0 ...2-2
-squareOfBlock( Iid,Jid, I,J ):- row(I), col(J), Iid is (I-1) // 3,  Jid is (J-1) // 3.
+event(E):-             event(E,_,_).
+eventModerators(E,M):- event(E,M,_).
+eventDays(E,D):-       event(E,_,D).
+day(D):-               numDays(N), between(1,N,D).
+moderator(M):-         numModerators(N), between(1,N,M).
 
 %%%%%%% End helpful definitions ===============================================================
 
 
 %%%%%%%  1. SAT Variables: ====================================================================
 
-% x(I,J,K) means "square IJ gets value K",    1<=i<=9, 1<=j<=9, 1<=k<=9   9^3= 729 variables
-satVariable( x(I,J,K) ):- row(I), col(J), val(K).
-
+satVariable( ed(E,D) ):-  event(E), day(D).   %% Complete this!
+satVariable( em(E,M) ):-  event(E), moderator(M).
+satVariable( md(M,D) ):- satVariable( ed(E,D)) , satVariable(em(E,M)).
 
 %%%%%%%  2. Clause generation for the SAT solver: =============================================
 
-writeClauses:- 
-    filledInputValues,         % for each filled-in value of the input, add a unit clause
-    eachIJexactlyOneK,         % each square IJ gets exactly one value K
-    eachJKexactlyOneI,         % each column J gets each value K in exactly one row I
-    eachIKexactlyOneJ,         % each row    I gets each value K in exactly one column J
-    eachBlockEachKexactlyOnce, % each 3x3 block gets each value K exactly once.
-    true,!.                    % this way you can comment out ANY previous line of writeClauses
+writeClauses:-  
+    cadaEventUnDia,
+    cadaEventUnModerador,
+    maxEventPerDia,
+    maxDiesModerador,
+    lliguemVariables,
+    restrictEventModerator,
+    restrictEventDay,
+    true,!.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-%% We can use writeClause to write any kind of clauses for the SAT solver, any list of positive and 
-%%     negative literals, such as:  writeOneClause([ -x(1,2,3),  x(2,2,3),  x(4,2,3), -x(5,5,6) ]).
-%% We can also generate *constraints* for the SAT solver: exactly(K,Lits), atLeast(K,Lits), atMost(K,Lits).
-%%     Look at the library below to see how these constraints generate the necessary SAT clauses to encode them.
-%%     For example, exactly 1 of {x1,x2,...x9} is equivalent to:
-%%           - at least 1 of {x1,x2,...x9} can be encoded by a single clause: x1 v...v x9
-%%           - at most  1 of {x1,x2,...x9} by 36 binary clauses:   -x1 v -x2,   -x1 v -x3,   ...   -x8 v -x9.
+cadaEventUnDia:- event(E), findall(ed(E,D), (eventDays(E,Ds),member(D,Ds)),Lits), exactly(1,Lits),fail.
+cadaEventUnDia.
 
-%% The Prolog predicate nth1(I,L,E)  means:   "the Ith element of the list L is E"
-%% Please understand the Prolog mechanism we use for generating all clauses: one line with "fail", and another one below:
-filledInputValues:- entrada(Sud), nth1(I,Sud,Row), nth1(J,Row,K), integer(K), writeOneClause([ x(I,J,K) ]), fail.
-filledInputValues.
+cadaEventUnModerador:- event(E), findall(em(E,M), (eventModerators(E,Ms),member(M,Ms)),Lits), exactly(1,Lits),fail.
+cadaEventUnModerador.
 
-%% The Prolog predicate  findall(X, Cond, L)   means:   "L = { X | Cond } " like a comprehension list
-eachIJexactlyOneK:- row(I), col(J), findall( x(I,J,K), val(K), Lits ), exactly(1,Lits), fail.
-eachIJexactlyOneK.
-%% this generates, for example,  exactly( 1, [ x(1,1,1), x(1,1,2), ... x(1,1,9) ])
+maxEventPerDia:- maxEventsPerDay(Max), day(D), findall(ed(E,D),event(E),Lits), atMost(Max,Lits),fail.
+maxEventPerDia.
 
-eachJKexactlyOneI:- col(J), val(K), findall( x(I,J,K), row(I), Lits ), exactly(1,Lits), fail.
-eachJKexactlyOneI.
+maxDiesModerador:- maxDaysPerModerator(Max), moderator(M), findall(md(M,D), day(D),Lits), atMost(Max,Lits),fail.
+maxDiesModerador.
 
-eachIKexactlyOneJ:- row(I), val(K), findall( x(I,J,K), col(J), Lits ), exactly(1,Lits), fail.
-eachIKexactlyOneJ.
+restrictEventModerator:- event(E), eventModerators(E,Ms), moderator(M), not(member(M,Ms)), writeOneClause([-em(E,M)]),fail.
+restrictEventModerator.
 
-eachBlockEachKexactlyOnce:- blockID(Iid,Jid), 
-        val(K), findall( x(I,J,K), squareOfBlock(Iid,Jid,I,J), Lits ), exactly(1,Lits), fail.
-eachBlockEachKexactlyOnce. 
+restrictEventDay:- event(E), eventDays(E,Ds), day(D), not(member(D,Ds)), writeOneClause([-ed(E,D)]),fail. 
+restrictEventDay.
+
+lliguemVariables:- moderator(M) , day(D), event(E), writeOneClause([-em(E,M),-ed(E,D),md(M,D)]),fail.
+lliguemVariables.
 
 
 %%%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
-displaySol(M):- nl, write(M), nl, nl, fail.
-displaySol(M):- nl, row(I), nl, line(I), col(J), space(J), member(x(I,J,K), M ), write(K), write(' '), fail. 
-line(I):-member(I,[4,7]), nl,!.
-line(_).
-space(J):-member(J,[4,7]), write(' '),!.
-space(_).
+% displaySol(M):- nl, write(M), nl, nl, fail.
+displaySol(M):-
+    day(D), nl, write('Day '), write(D), write(': '),
+    findall(E-Mod,(member(ed(E,D),M), member(em(E,Mod),M)), L),
+    member(E-Mod,L), write(' event('), write(E), write(')-mod('), write(Mod), write(') '), fail.
+displaySol(M):-nl,
+    moderator(Mod), nl, findall(D,(member(ed(E,D),M), member(em(E,Mod),M)), L),
+    write('Moderator '), write(Mod), write( ' works: '), sort(L,L1), write(L1), fail.
+displaySol(_).
 
 %%%%%%% =======================================================================================
 
@@ -171,7 +168,7 @@ main:-  initClauseGeneration,
         write('Generated '), write(C), write(' clauses over '), write(N), write(' variables. '),nl,
         shell('cat header clauses > infile.cnf',_),
         write('Calling solver....'), nl,
-        shell('kissat -v infile.cnf > model', Result),  % if sat: Result=10; if unsat: Result=20.
+        shell('./kissat -v infile.cnf > model', Result),  % if sat: Result=10; if unsat: Result=20.
         treatResult(Result),!.
 
 treatResult(20):- write('Unsatisfiable'), nl, halt.
