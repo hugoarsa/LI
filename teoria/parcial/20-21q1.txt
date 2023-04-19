@@ -1,0 +1,97 @@
+1) (3 points)
+Prove, using only the definitions of propositional logic, that the deduction rule of resolution in propo-
+sitional logic is correct, that is, if from the two clauses C1 and C2 by resolution we can obtain a clause
+D, then C1 ∧ C2 |= D.
+
+If we are using resolution as a way of deduction we have to have a specific variable and strcture to C1 and 
+C1 in order for this to work. In particular, C1 is p v C1' and C2 is -p v C2'. Then we will prove that the 
+resolution that we generate, in this case C1' v C2', is a logical consequence of C1 & C2. 
+
+OJO CON LAS IMPLICACIONES DOBLES QUE DEBERIAN DE SER UNA
+
+
+I |= C1 & C2			
+I |= (p v C1') & (-p v C2') 
+I is model of (p v C1') & (-p v C2') 
+eval((p v C1') & (-p v C2')) = 1
+min((p v C1'),(-p v C2')) = 1
+min(max(p,C1'),max(-p,C2')) = 1
+
+si I(p) = 1
+max(-p,C2') = 1
+max(1-eval(p),eval(C2')) = 1
+max(0,eval(C2')) = 1
+eval(C2') = 1
+max(eval(C1'),eval(C2')) = 1
+eval(C1' & C2') = 1
+I |= C1' & C2'
+
+si I(p) = 0
+The same on the other side
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------
+2) (3 points)
+Assuming you can use a SAT solver or any other algorithm, explain very briefly what you would do
+and what the computational cost would be and why, to decide the following two problems:
+2a) Given a formula F in disjunctive normal form (DNF), decide whether F is a tautology.
+
+For tautology is quite hard since we can only solve it with normal SAT solvers wich are known to be
+NP time complexity. So we should maybe transform the formula on polinomial time to a CNF-SAT and look
+for unsatisfactibility there.
+
+2b) Given a formula F in disjunctive normal form (DNF), decide whether F is a satisfiable.
+
+With a DNF the time complexity for SAT is easy being a polynomial problem. Since the problem 
+is a disjunction of many clauses, if we find a single one that has a solution we are already done.
+In this case satisfactibility for each of the cubes would involve just looking for uncompatible variables
+p & -p for example.
+
+
+
+
+----------------------------------------------------------------------------------------------------------
+3) (4 points)
+Let P be a set of propositional predicate symbols. Let S be a set of clauses over P and let N be a
+subset of P. We define flip(N, S) to be the set of clauses obtained from S by flipping (changing the
+sign) of all literals with symbols in N .
+
+For example, flip( {p, q}, { p ∨ ¬q ∨ ¬r, q ∨ r } ) is { ¬p ∨ q ∨ ¬r, ¬q ∨ r }.
+A clause is called Horn if it has at most one positive literal. A set of clauses S is called renamable
+Horn if there is some N ⊆ P such that flip(N, S) is a set of Horn clauses.
+
+
+3a) Explain in three lines: given S and N such that flip(N, S) is a set of Horn clauses, what would
+you do to efficiently decide whether S is satisfiable, and why?
+
+If i had the possibility to transform in polinomial time a general CNF to a Horn clause CNF I would 
+use flip to construct that specific Horn clause CNF and use it's satisfactibility algorythm which is
+way faster than the NP one we have in SAT. Since that algorythm can exploit the fact of having only
+one positive variable per clause it can easily detect conflicts and expand swiftly.
+
+Once we would get the desired model we would flip the values of the elements in N so that the model 
+satisfies the original formula.
+
+
+3b) Given an arbitrary set of clauses S, we want to decide whether it is renamable Horn and, if so,
+find the corresponding N . We will do this using an algorithm based on... SAT! For each p ∈ P, we
+introduce a SAT variable flipped (p) meaning that symbol p is in N . Then we add clauses for every
+clause C of S and every pair of literals l and l' in C, forbidding that after doing all flips, l and l0 both
+become positive.
+Explain in three lines: which clauses do you need, what is the cost of the resulting SAT-based
+algorithm and why?
+
+we would add cardinality constraints in order to make sure every clause of the cnf has exacly one positive literal
+
+For every pair of literals appearing in the same clause of S:
+a) if both are positive symbols p and q then we add the clause
+flipped (p) ∨ flipped (q)
+b) if both are negative, of the form ¬p and ¬q then we add
+¬flipped (p) ∨ ¬flipped (q)
+c) otherwise they are of the form ¬p and q, and we add
+¬flipped (p) ∨ flipped (q)
+This gives a quadratic number of 2-SAT clauses, so using the linear 2-SAT algoritm we get a quadratic
+algorithm for deciding whether S is renamable Horn and, if so, finding the corresponding N .
