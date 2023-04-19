@@ -1,0 +1,85 @@
+
+
+1) (4 points)
+1a) Let F, G, H be formulas. Is it true that if F ∨ G |= H then F ∧ ¬H is unsatisfiable? Prove it
+using only the definition of propositional logic.
+
+we start to demonstrate using only definitions of propositional logic
+
+F v G |= H  						if [def. of logical consequence]
+A I, I |= F v G then I |= H				if [def. of then statement]
+A I, I not |= F v G or I |= H				if [def. of |=]
+A I, I not model F v G or I model H			if [def. of model]
+A I, eval(F v G) = 0 or eval(H) = 1			if [def. of eval with v]
+A I, max(eval(F),eval(G)) = 0 or eval(H) = 1		if [arithmetic manipulation]
+A I, max(eval(F),eval(G)) = 0 or 1 - eval(H) = 0	if [def. of eval(-)]
+A I, max(eval(F),eval(G)) = 0 or eval(-H) = 0		if [def. of max]
+A I, eval(F) = 0 or eval(-H) = 0			if [def. min]
+A I, min(eval(F),eval(-H)) = 0				if [def. eval]
+A I, eval(F & ¬H)					if [def. model]
+A I, I not model F & ¬H					if [def. |=]
+A I, I not |= F & ¬H					if [def. unsat]
+F & ¬H is unsatisfiable	
+
+1B) Let F and G be propositional formulas. Is it true that if F → G is satisfiable and F is satisfiable,
+then G is satisfiable? Prove it using only the definition of propositional logic.
+
+F: p is sat
+G: q & -q is unsat
+
+F -> G iff -F v G iff p v (q & -q) is satisfactible
+
+
+
+--------------------------------------------------------------------------------------------------------------
+2) (2 points) Let P be the set of four predicate symbols {p, q, r, s}.
+2a) How many propositional formulas F built over P exist?
+
+Infinite, since we can build as many logical equivalent versions of the same formulas with p, p v p, p v ...
+Logically non equivalent formulas would be only 2^2⁴
+
+2b) My friend John has a list L = {F1 , F2 , . . . , F100000 } of one hundred thousand formulas over
+{p, q, r, s}. He says that they are all logically non-equivalent, that is, Fi /≡ Fj for all i, j with 1 ≤ i <
+j ≤ 100000. What is the most efficient way to check whether John is right for a given L? Why? Your
+answer cannot be longer than 20 words.
+
+It would be false no matter what since there are not that many different functions with input 4, as there
+only are about 2^2⁴ of them, roughly 64000, since we got 100000, it would be assured that at least two are
+logically equivalent to each other.
+
+-------------------------------------------------------------------------------------------------------------
+3) (4 points) Let C be the atleast-1 constraint l1 + l2 + l3 ≥ 1, where l1 , l2 , l3 are literals, and let S
+be the set of five exactly-1 constraints
+{ l1 + a1 + a4 = 1, l2 + a2 + a4 = 1, l3 + a3 = 1, a1 + a2 + a5 = 1, a3 + a4 + a6 = 1 }
+where a1 . . . a6 are distinct propositional symbols not occurring in C.
+3A) Is it true that S |= C? Why? (answer in at most two lines).
+
+Yes. Assume S -|= C. Then ∃ I with I |= S and I -|= C, i.e., ¬l1 , ¬l2 , ¬l3 true in I, implying
+a3 true in I by constraint 3, ¬a4 by 5, a1 and a2 by 1,2, contradicting constraint 4, i.e., that I |= S.
+
+3B) Is it true that any model I of C can be extended to a model I ′ of S?
+Here, by “extending” I to I ′ we mean that evalI (li ) = evalI ′ (li ) and adequately defining the I ′ (aj ).
+Answer by just listing I ′ for the 7 cases of I, completing the table:
+l1 l2 l3 a1 a2 a3 a4 a5 a6
+0  0  1  0  0  0  1  1  0
+0  1  0  1  0  1  0  0  0
+0  1  1  1  0  0  0  0  1
+1  0  0  0  1  1  0  0  0
+1  0  1  0  1  0  0  0  1
+1  1  0  0  0  1  0  1  0
+1  1  1  0  0  0  0  1  1
+
+3C) Exactly-1-SAT is the problem of deciding the satisfiability of a given set S of exactly-1 constraints.
+What do you think is the computational complexity of exactly-1-SAT? (polynomial?, NP-complete?,
+harder?). Why?
+
+It is NP-hard since 2A and 2B show how to reduce 3-SAT to Exactly-1-SAT (note that l1 + l2 + l3 ≥ 1
+is in fact a clause l1 ∨ l2 ∨ l3 ).
+It is in NP since we can reduce Exactly-1-SAT to SAT: each exactly-1 constraint generates one clause
+for atleast-1 and we can use any well-known encoding for the atmost-1 (quadratic, Heule, ladder,...).
+
+3D) Same question if all exactly-1 constraints in S have the form l + l′ = 1 for literals l and l′ .
+
+we could express this with 2-sat and let it be polynomial.
+
+since l + l' = 1 equiv l -> -l' and l' -> -l
