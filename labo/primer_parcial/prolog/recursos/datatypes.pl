@@ -25,20 +25,6 @@ union([X|L1],L2,   L3 ):-
 union([X|L1],L2,[X|L3]):-
 	union(L1,L2,L3).
 
-% in_A_but_not_in_B(+LstA, +LstB, +Lst_in_Construction, -Lst_Final)
-% when A is finished, we unify Lst_in_Construction and Lst_Final
-a_diff_b([], _, L, L).
-
-% we check if the first element of A is in B
-a_diff_b([H|T], B, LC, LF) :-
-    member(H, B),
-    a_diff_b(T, B, LC, LF).
-
-% we check if the first element of A is in B
-a_diff_b([H|T], B, LC, LF) :-
-    \+member(H, B),
-    a_diff_b(T, B, [H| LC], LF).
-
 %%pert_con_resto(X,L,Resto) Resto = L - [X]
 pert_con_resto(X,L,Resto):- append(L1,[X|L2],L), append(L1,L2,Resto).
 
