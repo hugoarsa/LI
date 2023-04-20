@@ -199,7 +199,7 @@ Problem 4. (2 points).                                     @n@nota4:
     
    One clause for each way to choose (n-k+1) literals from a set of n literals:
    Binomial n choose (n-k+1)    [ n! / ((n-k+1)!*(k-1)!) clauses ]
-
+  
 4c) Write at least two names of any other encoding you know for cardinality constraints,
     encodings that do use auxiliary variables.
 
