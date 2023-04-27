@@ -63,14 +63,15 @@ gangster(G):-      gangsters(L), member(G,L).
 hour(H):-          between(1,72,H).
 blocked(G,H):-     notAvailable(G,L), member(H,L).
 available(G,H):-   hour(H), gangster(G), \+blocked(G,H).
+consecutiveHour(H, H2):- hour(H), H2 is H+1, hour(H2).
 
 %%%%%%% End helpful definitions ===============================================================
 
 
 %%%%%%%  1. Declare SAT variables to be used: =================================================
 
-satVariable( does(G,T,H) ):- ...  %  means:  "gangster G does task T at hour H"     (MANDATORY)
-
+satVariable( does(G,T,H) ):- gangster(G), task(T), hour(H).  %  means:  "gangster G does task T at hour H"     (MANDATORY)
+satVariable( busy(G,H) ):-  gangster(G), hour(H).              %  means:  "gangster G is busy at hour H"       (helps with cardinality)
 
 %%%%%%%  2. Clause generation for the SAT solver: =============================================
 
@@ -79,9 +80,73 @@ satVariable( does(G,T,H) ):- ...  %  means:  "gangster G does task T at hour H" 
 
 writeClauses(infinite):- !, writeClauses(72),!.
 writeClauses(MaxConsecutiveHours):-
-    ...
+    eachGangsterAtMostKHours(MaxConsecutiveHours),
+    noGangsterAtMostOneTaskSameHour,
+    noGangsterDifferentTaskConsecutive,
+    allTasksDone,
+    busyImpliesdoes,
+    unavailableGangster,
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
+
+% busy <-> does V does V does  (defino la variable busy)
+busyImpliesdoes:-
+    available(G,H),
+    findall(does(G,T,H), task(T), Lits),
+    expressOr(busy(G,H), Lits),
+    fail.
+busyImpliesdoes.
+    
+% a gangster is unavileable     
+unavailableGangster:-
+    gangster(G),
+    hour(H),
+    \+available(G,H),
+    writeOneClause([-busy(G,H)]), 
+    fail.
+unavailableGangster.  
+ 
+% Each task has the number of gangsters it requires
+allTasksDone:-
+    task(T),
+    hour(H),
+    needed(T,H,N),
+    findall(does(G,T,H), available(G,H), Lits),
+    exactly(N, Lits),
+    fail.
+allTasksDone.
+    
+% Each gangster does at most one task at the same time
+noGangsterAtMostOneTaskSameHour:-
+    available(G,H),
+    findall(does(G,T,H), task(T),Lits),
+    atMost(1, Lits),
+    fail.
+noGangsterAtMostOneTaskSameHour.
+    
+    
+% Each gangster does at most one task (different) in two consecutive hours
+noGangsterDifferentTaskConsecutive:-    
+    available(G,H),
+    consecutiveHour(H, H2),
+    available(G,H2),
+    task(T), task(T2), T \= T2,
+    writeOneClause([-does(G,T,H), -does(G,T2,H2)]),
+    fail.
+noGangsterDifferentTaskConsecutive.
+    
+    
+% If we make a window of does(G,T,H), all of them can't be true
+eachGangsterAtMostKHours(K):-
+    gangster(G),
+    AuxH is 72 - K,
+    between(1,AuxH,H1),
+    \+blocked(G,H1),
+    H2 is H1 + K, hour(H2),
+    findall(-busy(G,H), between(H1,H2,H), Lits),
+    writeOneClause(Lits), 
+    fail.
+eachGangsterAtMostKHours(_).
 
 
 %%%%%%%  3. DisplaySol: this predicate displays a given solution M: ===========================
@@ -101,7 +166,24 @@ writeIfBusy(_,_,_):- write('-'),!.
 %%%%%%%  4. This predicate computes the cost of a given solution M: ===========================
 
 % Here the sort predicate is used to remove repeated elements of the list:
-costOfThisSolution(M,Cost):- ...
+% Computes the number of consecutives hours the gangsters
+first([F|_], F).
+
+costOfThisSolution(M,Cost):- 
+   between(0,71,N),
+   Cost is 72-N,
+   gangster(G),
+   findall(H, member(does(G,_,H),M), Lits),
+   sort(Lits, L),
+
+   % find subset of consequent hours
+   append(L1,_,L),
+   append(_,Seg,L1),
+   length(Seg, Cost),
+   first(Seg, First),
+   last(Seg, Last),
+   Last is First + Cost - 1.
+
 
 
 %%%%%% ========================================================================================
