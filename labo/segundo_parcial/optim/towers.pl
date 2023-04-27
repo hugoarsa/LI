@@ -111,6 +111,7 @@ posWatchesVillage(V,I,J):- position(I,J), colVillage(V,J).            %         
 %%%%%%%  1. Declare SAT variables to be used: =================================================
 
 satVariable( towerPos(I,J) ):- row(I), col(J).  % means "there is a tower at position I-J"
+satVariable( towerInVillage(V)) :- village(V).
    % YOU MAY WANT TO INTRODUCE SOME OTHER VARIABLE FOR MAKING THE CARDINALITY CONSTRAINTS SMALLER
 
 
@@ -121,9 +122,55 @@ satVariable( towerPos(I,J) ):- row(I), col(J).  % means "there is a tower at pos
 
 writeClauses(infinite):- !, upperLimitTowers(N), writeClauses(N),!.
 writeClauses(MaxNumTowers):-
-    ...
+    maxOneTowerPerVillage,
+    allTowersInVillage,
+    atLeastWatchedByOne,
+    significantVillages,
+    maxTowers(MaxNumTowers),
+    lligarVariables,
     true,!.                    % this way you can comment out ANY previous line of writeClauses
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
+
+maxOneTowerPerVillage:- 
+        village(V), 
+        findall(towerPos(I,J) ,posVillage(V,I,J), L), 
+        atMost(1,L),
+        fail.
+maxOneTowerPerVillage.
+
+allTowersInVillage:- 
+        position(I,J), 
+        not(posVillage(_, I, J)),
+        writeOneClause( [-towerPos(I, J)]),
+        fail. 
+allTowersInVillage.
+
+atLeastWatchedByOne:- 
+        village(V), 
+        findall(towerPos(I,J), posWatchesVillage(V,I,J), L), 
+        atLeast(1,L),
+        fail.
+atLeastWatchedByOne.
+
+significantVillages:- 
+        significantVillage(V), 
+        writeOneClause([towerInVillage(V)]), 
+        fail.
+significantVillages.
+
+maxTowers(MaxNumTowers):- 
+        upperLimitTowers(M), Max is min(MaxNumTowers,M), 
+        findall(towerInVillage(V) ,village(V),L), 
+        atMost(Max,L),
+        fail.
+maxTowers(_).
+
+lligarVariables:- 
+        village(V), 
+        findall(towerPos(I,J), posVillage(V,I,J), Lits), 
+        expressOr(towerInVillage(V), Lits),
+        fail.
+lligarVariables.
 
 
 %%%%%%%  3. DisplaySol: this predicate displays a given solution M: ===========================
@@ -141,7 +188,7 @@ write2(N):- write(N),!.
 
 %%%%%%%  4. This predicate computes the cost of a given solution M: ===========================
 
-costOfThisSolution(M,Cost):- ...
+costOfThisSolution(M,Cost):- findall(towerPos(I,J), member(towerPos(I,J), M), L), length(L, Cost).
 
 
 %%%%%% ========================================================================================
