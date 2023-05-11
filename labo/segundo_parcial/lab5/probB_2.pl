@@ -1,8 +1,6 @@
 main:- 
     
-    EstadoInicial = [0,0], 
-    
-    EstadoFinal = [0,4],
+    EstadoInicial = [[3, 3],  [0, 0], i],     EstadoFinal = [[0, 0], [3, 3], f],
     
     between(1,1000,CosteMax), % Buscamos soluci ́on de coste 0; si no, de 1, etc.
     camino( CosteMax, EstadoInicial, EstadoFinal, [EstadoInicial], Camino ),
@@ -19,16 +17,32 @@ main:-
     CosteMax1 is CosteMax-CostePaso,
     camino(CosteMax1,EstadoSiguiente,EstadoFinal, [EstadoSiguiente|CaminoHastaAhora], CaminoTotal).
     
-    
-    unPaso(1, [_, Y], [5, Y]).
-    unPaso(1, [X, _], [X, 8]).
-    unPaso(1, [_, Y], [0, Y]).
-    unPaso(1, [X, _], [X, 0]).
-    
-    unPaso(1, [X1, Y1], [X2, Y2]) :-
-        Y2 is min((Y1 + X1), 8),
-        X2 is X1 - (Y2 - Y1).
-    
-    unPaso(1, [X1, Y1], [X2, Y2]) :-
-        X2 is min((X1 + Y1), 5),
-        Y2 is Y1 - (X2 - X1).
+
+    % P_O_I = Persones en Origen en Inicial
+    % C_D_F = Canibals en Desti en Final
+
+    unPaso(1, [[P_O_I, C_O_I], [P_D_I, C_D_I], i], [[P_O_F, C_O_F], [P_D_F, C_D_F], f]) :-
+    between(0, 2, MovPersona), between(0, 2, MovCanibal),
+    MovPersona + MovCanibal >= 1,
+    MovPersona + MovCanibal =< 2,
+    MovPersona =< P_O_I,
+    MovCanibal =< C_O_I,
+    P_D_F is P_D_I + MovPersona,
+    C_D_F is C_D_I + MovCanibal,
+    P_O_F is P_O_I - MovPersona, 
+    C_O_F is C_O_I - MovCanibal,
+    (P_O_F = 0 ; P_O_F >= C_O_F),
+    (P_D_F = 0 ; P_D_F >= C_D_F).
+
+    unPaso(1, [[P_O_I, C_O_I], [P_D_I, C_D_I], f], [[P_O_F, C_O_F], [P_D_F, C_D_F], i]) :-
+    between(0, 2, MovPersona), between(0, 2, MovCanibal),
+    MovPersona + MovCanibal >= 1,
+    MovPersona + MovCanibal =< 2,
+    MovPersona =< P_D_I,
+    MovCanibal =< C_D_I,
+    P_D_F is P_D_I - MovPersona,
+    C_D_F is C_D_I - MovCanibal,
+    P_O_F is P_O_I + MovPersona, 
+    C_O_F is C_O_I + MovCanibal,
+    (P_O_F = 0 ; P_O_F >= C_O_F),
+    (P_D_F = 0 ; P_D_F >= C_D_F).
