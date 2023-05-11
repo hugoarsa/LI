@@ -11,5 +11,15 @@ camino( CosteMax, EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal ):-
     CosteMax1 is CosteMax-CostePaso,
     camino( CosteMax1, EstadoSiguiente, EstadoFinal, [EstadoSiguiente|CaminoHastaAhora], CaminoTotal ).
 
-unPaso(....):- ...
-...
+unPaso(1, [_, Y], [5, Y]).
+unPaso(1, [X, _], [X, 8]).
+unPaso(1, [_, Y], [0, Y]).
+unPaso(1, [X, _], [X, 0]).
+
+unPaso(1, [X1, Y1], [X2, Y2]) :-
+    Y2 is min((Y1 + X1), 8),
+    X2 is X1 - (Y2 - Y1).
+
+unPaso(1, [X1, Y1], [X2, Y2]) :-
+    X2 is min((X1 + Y1), 5),
+    Y2 is Y1 - (X2 - X1).
