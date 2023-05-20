@@ -65,7 +65,7 @@ symbolicOutput(0).
 
 %%%%%%  1. SAT Variables:
 
-satVariable( chosen(S) ):- student(S).   % chosen(S) means "student S has been chosen"
+satVariable(chosen(S)):- student(S).   % chosen(S) means "student S has been chosen"
 satVariable(subject(S)):- subj(S).
 
 %%%%%%  2. Clause generation for the SAT solver:
