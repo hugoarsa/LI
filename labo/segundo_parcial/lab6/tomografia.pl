@@ -29,19 +29,25 @@ p:-	ejemplo1(RowSums,ColSums),
 	length(RowSums,NumRows),
 	length(ColSums,NumCols),
 	NVars is NumRows*NumCols,
+
+	% Domain
 	length(L,NVars),  % generate a list of Prolog vars (their names do not matter)
 	L ins 0..1,
-	matrixByRows(L,NumCols,MatrixByRows),
-	transpose(MatrixByRows, TransposedMatrix),
-	pretty_print(RowSums,ColSums,MatrixByRows).
 
-checkSum([], []):- !.
-checkSum([R|Matrix], [S|Sum]):- sum(R, #=, S), checkSum(Matrix, Sum).
-
-% Create a Matrix of NumCols columns from all variables in the list.
-matrixByRows([],_,[]).
-matrixByRows(L, NumCols, [X1|Rest]):-
-	append(X1, LTemp, L), length(X1, NUmCols), matrixByRows(LTemp, NumCols,Rest).
+	% Constraints
+	matrixByRows(L,NumCols,MBR),
+	
+	transpose(MBR, MBC),
+	
+	sumFiles(MBR, ResRowSums),
+	sumFiles(MBC, ResColSums),
+	
+	checkIguals(ResRowSums, RowSums),
+	checkIguals(ResColSums, ColSums),
+	
+	% Labelling
+	label(L),
+	pretty_print(RowSums,ColSums,MBR).
 
 
 pretty_print(_,ColSums,_):- write('     '), member(S,ColSums), writef('%2r ',[S]), fail.
@@ -50,3 +56,15 @@ pretty_print(_,_,_):- nl.
 wbit(1):- write('*  '),!.
 wbit(0):- write('   '),!.
     
+matrixByRows([], _, []).
+matrixByRows(L, NumCols, [X1|Rest]) :- 
+	append(X1, LTemp, L), length(X1, NumCols), matrixByRows(LTemp, NumCols, Rest).
+
+sumFiles([], []).
+sumFiles([L|LX], [R|RX]) :- expr_suma(L, R), sumFiles(LX, RX).
+
+expr_suma([X], X).
+expr_suma([X|LX], X + SX) :- expr_suma(LX, SX).
+
+checkIguals([], []).
+checkIguals([X|F], [Y|S]) :- X #= Y, checkIguals(F, S).
