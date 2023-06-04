@@ -1,7 +1,12 @@
-%instrucciones(L) --> <instrucciones>.
-instrucciones(L) --> instruccion(L).
+programa(['begin'|P]):- append(I, ['end'], P), instrucciones(I), write('yes'), !.
+programa(_):- write('no').
 
+instrucciones(I):- instruccion(I).
+instrucciones([I,';'|LI]):- instruccion(I), instrucciones(LI).
 
-%instrucciones(L) --> <instruccion> ; <instrucciones>.
-%instrucciones(L) --> append(L1,[;|L2],L), instruccion(L1), instrucciones(L2) %%amb append/3
-instrucciones(L) --> append([L1,[;],L2],L), instruccion(L1), instrucciones(L2). %%amb append/2
+instruccion([V1, '=', V2, '+', V3]):- variable(V1), variable(V2), variable(V3).
+instruccion(['if', V1, '=', V2, 'then', LI1, 'else', LI2, 'endif']):- variable(V1), variable(V2), instrucciones(LI1), instrucciones(LI2).
+
+variable('x').
+variable('y').
+variable('z').

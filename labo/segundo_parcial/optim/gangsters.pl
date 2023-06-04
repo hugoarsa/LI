@@ -89,7 +89,7 @@ writeClauses(MaxConsecutiveHours):-
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
-% busy <-> does V does V does  (defino la variable busy)
+% busy <-> does V does V does  (defino la variable busy) (ligar variables basicamente)
 busyImpliesdoes:-
     available(G,H),
     findall(does(G,T,H), task(T), Lits),
@@ -97,7 +97,7 @@ busyImpliesdoes:-
     fail.
 busyImpliesdoes.
     
-% a gangster is unavileable     
+% a gangster is unavileable     (mas ligado de variables)
 unavailableGangster:-
     gangster(G),
     hour(H),
@@ -237,7 +237,7 @@ expressOr( Var, Lits ):- negate(Var,NVar), writeOneClause([ NVar | Lits ]),!.
 %% a -> x v y   -a v x v y
 
 % Express that Var is equivalent to the conjunction of Lits:
-expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !.
+expressAnd( Var, Lits):- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !.
 expressAnd( Var, Lits):- member(Lit,Lits), negate(Var,NVar), writeOneClause([ NVar, Lit ]), fail.
 expressAnd( Var, Lits):- findall(NLit, (member(Lit,Lits), negate(Lit,NLit)), NLits), writeOneClause([ Var | NLits]), !.
 
