@@ -1,0 +1,100 @@
+_____________________________________________________________________________________
+FIRST-ORDER LOGIC.   QUESTION 1.   3 POINTS.   @nota FOL1:
+
+Formalize the following sentences in first-order logic and prove by resolution that C
+is a logical consequence of A & B.  Use --> to denote implication.
+  A) St. Francis is loved by everyone who loves someone.
+  B) No one loves nobody. (Spanish: "no hay nadie que no ame a nadie")
+  C) St. Francis is loved by everyone.
+First, for each predicate, constant (or other function) symbol you use in
+your formalization, write its meaning and arity, as in the example below. 
+
+
+
+ ANSWER: 
+predicate symbol: loves(x,y)   meaning    "x loves y",     arity 2
+function symbol:  frank        meaning    "St. Francis",   arity 0 (constant symbol)
+
+   F_A:  Ax ( Ey loves(x,y) --> loves(x,frank) )
+   F_B:  - Ex - Ey loves(x,y)
+   F_C:  Ax loves(x,frank)
+
+C is a logical consequence of A & B if and only if A & B & -C es unsatisfiable, i.e. 
+A & B |= C    iff    A & B & -C is unsatisfiable.
+
+   - F_C:  - Ax loves(x,frank)
+
+
+
+Clause set S:
+   F_A:  Ax (-Ey  loves(x,y) v loves(x,frank) )
+         Ax ( Ay -loves(x,y) v loves(x,frank) )
+     1:  -loves(x,y) v loves(x,frank) 
+
+   F_B:  -Ex -Ey loves(x,y)
+         Ax Ey  loves(x,y)
+     2:  loves(x,f(x))
+
+  - F_C:  -Ax loves(x,frank)
+          Ex -loves(x,frank)
+     3:   -loves(cx,frank)
+
+
+F_A & F_B & -F_C  and clause set S are equisatisfiable.
+
+
+S is unsatisfiable if and only if the empty clause belongs to
+ResFact(S) by the soundness and refutational completeness of
+Resolution and Factoring for First Order Logic.
+
+
+NEW CLAUSE 4  -loves(cx,y)  FROM  CLAUSE 1 AND CLAUSE 3  WITH MGU {x = cx}
+NEW CLAUSE 5  []            FROM  CLAUSE 2 AND CLAUSE 4  WITH MGU {x = cx, y = f(cx)}    
+
+
+
+_____________________________________________________________________________________
+FIRST-ORDER LOGIC.   QUESTION 2.   4 POINTS.   @nota FOL2: 
+ 
+A) (1 point) Write a formula F of FOL with equality, built only over the equality predicate
+(use NO other function, constant or predicate symbols)
+such that any model I of F has a domain D_I with either 2 or 3 elements, that is,
+I |= F  iff  2 <= |D_I| <= 3.
+Only write the formula F, giving NO explanations (same for B,C,D below).
+
+
+Ex Ey -(x=y)  &  Ex Ey Ez Au ( u=x  v  u=y  v  u=z )
+
+
+B) (1 point) Write a formula F of FOL with equality,
+built only over the equality predicate and one unary predicate symbol p,
+("unary" means that the arity of p is 1; use NO other function, constant or predicate symbols)
+such that  I |= F  iff  p is true for AT MOST  2 elements of D_I.
+
+Ex Ey Az ( p(z) --> z=x v z=y )
+
+C) (1 point) Like B) but now iff  p is true for AT LEAST 2 elements of D_I.
+
+Ex Ey (  -(x=y)  &  p(x) & p(y) )
+
+D) (1 point) Like B) but now use the equality predicate and one BINARY (i.e. arity=2) predicate symbol p
+to express that any finite model of F has a domain with an even number of elements.
+Hint: express that the domain has two halves: each element is related by p to exactly one 
+element in the other half.
+
+AxEy  ( -(x=y)  &  p(x,y)  &  p(y,x)  &  -Ez ( -(z=y) & (p(x,z) v p(z,x)) )  )
+
+_____________________________________________________________________________________
+FIRST-ORDER LOGIC.   QUESTION 3.   3 POINTS.   @nota FOL3: 
+
+John has written a C++ program P that takes as input two arbitrary first-order formulas F
+and G. He says that, if F and G are logically equivalent, P always outputs "yes" after a
+finite amount of time, and if F and G are NOT logically equivalent, P outputs "no" or it
+does not terminate.  Is this possible? If this is not possible, explain why. If it is
+possible, explain how P would work.
+
+
+ANSWER: ...
+
+_____________________________________________________________________________________
+

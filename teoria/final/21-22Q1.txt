@@ -1,0 +1,130 @@
+--------------------------------------------------------------------------------------------------
+-----------------------     First-Order Logic:   -------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+
+Problem 4. (3 points).                                   @n@nota4:
+
+John has written a C++ program P that takes as input an arbitrary first-order formula F.  He
+says that, if F is a tautology, P always outputs "yes" after a finite amount of time, and if F
+is NOT a tautology, P outputs "no" or it does not terminate.  Is this possible?  If this is not
+possible, explain why. If it is possible, explain how and why P would work.
+
+It is possible because unsat in LPO is semi-decidible so if we find ourselfes upon a problem of insat
+we can say yes in a finite ammount of time and say no in an undefined ammount of time.
+
+The fact that F is a tautulogy can be depicted as -F is unsat, and as we know by clausure of resolution
+if we are upon a Yes instance of unsat after a finite ammount of steps of ResFact(S) we will find [],
+in fact that's the algorythm we are looking for.
+
+--------------------------------------------------------------------------------------------------
+
+Problem 5. (3 points).                                   @n@nota5:
+
+5a) Is the formula Ax Ey ( p(f(x),y) & -p(x,y) )  satisfiable? Prove it.
+
+Universo = N
+
+f(a) = SUCC a
+
+p(a,b) = (a = b)
+
+se lee asi, para todo natural existe un sucesor diferente de el mismo
+
+
+sol:
+
+D_I={a,b}
+
+p_I(a,a)=1
+p_I(a,b)=0
+p_I(b,a)=0
+p_I(b,b)=1
+
+f_I(a)=b
+f_I(b)=a
+
+if x=a then pick y=b
+if x=b then pick y=a
+
+
+
+5b) Are the following two formulas F and G logically equivalent? Prove it a simply as you can.
+F:   Ax Ey ( p(f(x),y) & -p(x,y) )
+G:   Ey Ax ( p(f(x),y) v -p(x,y) )
+
+comprobamos el modelo anterior aqui:
+
+D_I={a,b}
+
+p_I(a,a)=1
+p_I(a,b)=0
+p_I(b,a)=0
+p_I(b,b)=1
+
+f_I(a)=b
+f_I(b)=a
+
+let's look for that Ey 
+
+y=a then x=a (p(b,a) v -p(a,a))
+
+y=b then x=b (p(a,b) v -p(b,b))
+
+we cannot find such a y so a model of F is not a model of G and because of such they are not
+logically equivalent
+
+--------------------------------------------------------------------------------------------------
+
+Problem 6. (4 points).                                   @n@nota6:
+
+Formalise the following sentences in first-order logic and prove by resolution that the last
+one (g) is a logical consequence of the others a & b & c & d & e & f.
+
+a: If a king is magic then he steals from all his citizens.
+b: A king is magic if he is the son of a magic king.
+c: Johnny is a magic king.
+d: Phil is the son of Johnny.
+e: Mary is a citizen of Phil.
+f: Phil does not steal from Mary.
+g: This year FC Barcelona will win the League.
+
+
+C1: -magic(x) v -citizenOf(x,y) v stealsFrom(x,y) 
+
+C2: -son(s,f) v -magic(f) v magic(s)
+
+C3: magic(j)
+
+C4: son(p,j)
+
+C5: citizenOf(p,m)
+
+C6: -stealsFrom(p,m)
+
+C1 with C2 with mgu {f=j}
+
+C7: -son(s,j) v magic(s)
+
+C7 with C4 with mgu {s=p}
+
+C8: magic(p)
+
+C8 with C1 with mgu {x=p}
+
+C9: -citizenOf(p,y) v stealsFrom(p,y) 
+
+C9 with C10 with mgu {y=m}
+
+C10: stealsFrom(p,m)
+
+C10 with C6 with no need for unifiers
+
+C11: []
+
+Since a & b & c & d & e & f are unsat everything is logical consecuence of it
+ 
+
+
+--------------------------------------------------------------------------------------------------
+

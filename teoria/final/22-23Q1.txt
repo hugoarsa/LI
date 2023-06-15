@@ -1,0 +1,318 @@
+--------------------------------------------------------------------------------------------------
+Logic in Computer Science, January 16th, 2023. Time: 2h30min. No books or lecture notes allowed.
+--------------------------------------------------------------------------------------------------
+Note on evaluation: eval(propositional logic) = max(eval(Problems 1,2,3), eval(partial exam))
+                    eval(first-order logic)   = eval(Problems 4,5,6).
+
+-Insert your answers on the dotted lines ... below, and only there.
+-Do NOT modify the problems or the @nota lines or the @answer lines
+-When finished, upload this file with the same name: exam.txt
+-Use the text symbols:     &     v    -       ->          |=        A       E
+   for                    AND   OR   NOT   IMPLIES   "SATISFIES"  FORALL  EXISTS,  like in:
+   I  |=  p & (q v -r)     (the interpretation I satisfies the formula p & (q v -r)  ).
+   You can write subindices using "_". For example write x_i to denote x-sub-i.
+--------------------------------------------------------------------------------------------------
+
+
+Problem 1. (4 points).                                   @n@nota1:
+
+1a)
+Is it true that, for any two propositional formulas F and G,
+if F is unsatisfiable then (G v F) -> G is a tautology?
+Prove it using only the definition of propositional logic.
+
+
+Answer:
+
+(G v F) -> G is a tautology                           iff       [by definition of ... ]
+...                                                   iff       [by definition of ... ]
+...                                                   iff       ...
+...                                                   iff       [since F is unsatisfiable]
+...                                                   iff       ...
+...
+1 = 1         
+
+
+
+
+1b)
+Is it true that, for any two propositional formulas F and G,  F -> G is a tautology iff G |= F?
+If it is, prove it. If it is not, give a concrete counterexample (and check it is so).
+
+
+Answer:
+
+...
+
+
+
+
+
+1c)
+Write two propositional formulas F and G, and an interpretation I, such that:
+   a)  not(F |= G)
+   b)  not(G |= F)
+   c)  I |= F & G
+
+
+Answer:
+
+...
+
+
+
+
+
+--------------------------------------------------------------------------------------------------
+
+Problem 2. (3 points).
+
+For each one of the following statements, indicate if it is true or false for propositional logic.
+Below always F,G,H are formulas and I is an interpretation.
+Insert your answers below, replacing (part of) the ? symbols with t (true) or f (false).
+Note: Wrong answers subtract 0.2 points.
+ 
+ 1  ?  Given F, it is undecidable whether F is satisfiable.         
+ 2  ?  For any H such that F |= H and G |= H we have F & G |= H.
+ 3  ?  If H is not a logical consequence of F v G then (F v G) & -H is unsatisfiable.
+ 4  ?  If F is a tautology then -F is satisfiable.
+ 5  ?  If F |= G then every model of G is a model of F.
+ 6  ?  For any H such that F |= H and G |= H we have F v G |= H.
+ 7  ?  Given n propositional symbols, there are 4^n classes of logically equivalent formulas.
+ 8  ?  There is a set of clauses S such that its closure by resolution has infinitely many clauses.
+ 9  ?  There are F and G such that neither of F |= G or G |= F holds.
+10  ?  The formula  p  is a logical consequence of  (p v -q v r)  &  (q v r)  &  (p v r). 
+11  ?  Every clause different from the empty clause is satisfiable.
+12  ?  There are formulas that are in CNF and DNF at the same time.
+13  ?  2SAT can be solved in polynomial time.
+14  ?  For any H such that F |= H we have -F |= -H.
+15  ?  |models(F)| + |models(G)| = |models(F v G)| + |models(F & G)|.
+16  ?  If F is such that for a certain G we have F |= G and F |= -G then F is unsatisfiable.
+
+
+
+--------------------------------------------------------------------------------------------------
+
+Problem 3. (3 points).                                   @n@nota3:
+
+A pseudo-Boolean constraint has the form a_1 x_1 + ... + a_n x_n <= k (or the same with >=), where the
+coefficients a_i and the k are natural numbers and the x_i are propositional variables.
+
+3a)
+Which clauses are needed to encode the pseudo-Boolean constraint 2x + 3y + 4z + 6u + 8t <= 10 into SAT,
+if no auxiliary variables are used?
+
+
+Answer:
+
+{-u,-t}
+...
+
+
+
+
+
+3b)
+Which clauses are needed in general, with no auxiliary variables,
+for a constraint a_1 x_1 + ... + a_n x_n <= k?
+
+
+Answer:
+
+...
+
+
+
+
+
+_____________________________________________________________________________________
+_____________________________________________________________________________________
+
+FIRST-ORDER LOGIC:
+_____________________________________________________________________________________
+_____________________________________________________________________________________
+
+
+Problem 4. (3 points).                                   @n@nota4:
+
+4a)
+Let F be the following first-order formula (FOL), that contains the subformula G:
+
+   F = Ax -p(x,x)   &   AxAyAz( p(x,y) & p(y,z) -> p(x,z) )    &    AxEy p(x,y)   &   G
+    
+Let I1 and I2 be two interpretations, where D_I1 = N (the natural numbers), and
+D_I2 = Z (the integer numbers).
+
+Define the formula G, and the binary predicate p, in such a way that
+F is true in I1, and F is false in I2.
+
+Note: the predicate p must be the same "boolean function" in both interpretations.
+
+
+Answer:
+
+p(a,b) = a < b
+
+ExAy -p(y,x) -> in the natural numbers this number is 0, but in integres there doesn't exist a number
+
+
+
+
+
+4b)
+Is the following first-order formula (FOL) F satisfiable? Answer YES or NO and prove it.
+
+   F = Ax Ey p(x,y)  &  Ey Ax -p(x,y)  &  Ax p(x,x)
+
+
+Answer:
+
+I have to generate clauses of all universal quantificators to apply reduction (the result is equisatisfactible
+
+
+Ax Ey p(x,y) -skol-> Ax p(x1,fy(x1)) C1
+
+Ey Ax -p(x,y) -skol-> Ax -p(x2,c) C2
+
+Ax p(x3,x3) C3
+
+lets try to apply resolution:
+
+        -p(x2,c)           p(x3,x3)
+	---------------------------    with mgu {x2=c, x3=c}
+	           []
+	           
+The empty clause is obtained, so F is unsatisfiable.
+
+
+
+
+
+------------------------------------------------------------------------------------
+
+Problem 5. (3 points).                                   @n@nota5:
+
+5a)
+Consider the following formula of FOL:
+
+    Ax       ( p( x, x ) )
+     &
+    Ax Ay    ( p( x, y ) -> p( y, x ) )
+     &
+    Ax Ay Az ( p( x, y ) & p( y, z ) -> p( x, z ) )
+
+Give a model of this formula with domain IN (the natural numbers) in which p is 
+*not* equality or the constant 1 (TRUE) predicate.
+
+
+Answer:
+
+The formula specifies that p should be an equivalence relation, that is:
+
+* reflexive:  Ax       ( p( x, x ) ),
+* symmetric:  Ax Ay    ( p( x, y ) -> p(y, x) ), and
+* transitive: Ax Ay Az ( p( x, y ) & p( y, z ) -> p(x, z) )
+
+So any interpretation in which p is an equivalence relation different from the equality or TRUE
+is a valid answer. For instance, we can define p(x, y) = 1 iff x and y are congruent modulo 2.
+
+
+
+
+
+5b)
+Prove that the following first-order formula with equality (FOLE) is satisfiable:
+
+    Ey Az ( (Ax f(x,y) = x) & -(f(y,y) = g(z,z)) )
+
+
+Answer:
+
+For example the following interpretation I is a model:
+    D_I = {a,b}
+    f(a,a) = a
+    f(a,b) = indifferent (a or b)
+    f(b,a) = b
+    f(b,b) = a
+    g(a,a) = b
+    g(a,b) = indifferent (a or b)
+    g(b,a) = indifferent (a or b)
+    g(b,b) = b
+
+
+
+------------------------------------------------------------------------------------
+
+Problem 6. (4 points).                                   @n@nota6:
+
+Formalize and prove by resolution that sentence E is a logical consequence of the first four.
+   A. Mary has a daughter who is nice and studious
+   B. Studious people are always flamboyant or shy
+   C. Nice people are never shy
+   D. No one who is nice has an flamboyant child
+   E. Mary is not nice
+
+Use the following vocabulary:
+   m        meaning "Mary"
+   dau(x,y) meaning "x is the daughter of y"
+   nic(x)   meaning "x is nice"
+   stu(x)   meaning "x is studious"
+   fla(x)   meaning "x is flamboyant"
+   shy(x)   meaning "x is shy"
+
+
+Answer:
+
+
+A. Ex (dau(x,m) & nic(x) & stu(x))
+B. Ay (stu(y) -> (fla(y) v shy(y))
+C. Az (nic(z) -> -shy(z))
+D. Au (nic(u) -> -Ev(dau(v,u) & fla(v))
+E. -nic(m)
+
+
+Clausal form:
+ A1:  dau(c_m,m)
+ A2:  stu(c_m)
+ A3:  nic(c_m)
+ B:   -stu(y) v fla(y) v shy(y)
+ C:   -nic(z) v -shy(z)		     
+ D:   -nic(u) v -dau(v,u) v -fla(v)  
+-E:   nic(m)
+
+E is a logical consequence of  A & B & C & D    iff
+A & B & C & D & -E is unsatisfiable             iff
+we can obtain by resolution the empty clause from clauses A & B & C & D & -E:
+
+A2 con B si c_m = y 
+F: fla(c_m) v shy(c_m)
+
+A3 con C si c_m = z
+G: -shy(c_m)
+
+G con F de normal
+H: -nic(c_m)
+
+-E con D si m = u
+I: -dau(v,m) v -fla(v) 
+
+I con A1 si v es c_M
+J: -fla(c_m)
+
+
+
+sol:
+
+N   From:     mgu:                     new clause by resolution:
+-------------------------------------------------------------------
+1.  -E, D      { u=m }                 -dau(v,m) v -fla(v))
+2.  A1, 1      { v=c_m }               -fla(c_m)
+3.  B, 2       { y=c_m }               -stu(c_m) v shy(c_m)
+4.  A2, 3      { }                     shy(c_m)
+5.  4, C       { z=c_m }               -nic(c_m)
+6.  A3, 5      { }                     []
+
+
+
+
+------------------------------------------------------------------------------------

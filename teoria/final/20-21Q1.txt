@@ -1,0 +1,104 @@
+4) (3 points) For 4a and 4b, just write the simplest and cleanest possible formula F . Use no more
+predicate or function symbols than just p. Give no explanations.
+
+4a) Write a satisfiable first-order formula F , using only a binary predicate p, such that all models I of F have an infinite domain DI .
+
+
+Ax -p(x,x) & AxAyAz ((p(x,y) & p(y,z)) -> p(x,z))  & AxEy p(x,y)
+
+
+4b) Write a satisfiable formula F of first-order logic with equality, using only a unary predicate p, such that F expresses that there is a single element satisfying p, that is, all models I of F have a single (unique) element e in its domain DI such that pI (e) = 1.
+
+Ex (p(x) & Ay (y!=x -> -p(y)))
+
+
+
+
+5) (3 points) Let F be the first-order formula ∃x∀y∃z ( p(z, y) ∧ ¬p(x, y) ).
+5a) Give a model I of F with DI = {a, b, c}.
+
+suponemos que x existe y es una a, entonces p(a,y) ha de ser falso para todo y
+
+y despues para todo y cuando lo mezclamos con z que seria o bien b o c deberia ser cierto
+
+
+5b) Is it true that F |= ∀x p(x, x)?
+
+
+La verdad es que no, al menos por como definimos el modelo anterior
+
+
+5c) Is there any model of F with a single-element domain?
+
+no, al menos dos
+
+
+
+
+6) (4 points) Formalize and prove by resolution that sentence F is a logical consequence of the first
+five:
+
+
+A: All people that have electric cars are ecologists.
+B: If someone has a grandmother, then that someone has a mother whose mother is that grandmother.
+C: A person is an ecologist if his/her mother is an ecologist.
+D: Mary is John’s grandmother.
+E: Mary has an electric car.
+F: John is an ecologist.
+
+To find if the F sentence is a logical consequence i have to find if A & B & C & D & E & -F is unsat
+
+To modelate I will use the following definitions:
+
+hasElectric(x)
+isEcologist(x)
+hasGranny(x,y)
+hasMama(x,y)
+
+B: AxAy (Grany(x,y) -> Ez (Mama(x,z) & Mama(z,y))
+
+used:
+
+E: hasElectric(mary)
+
+A: -hasElectric(x) v isEcologist(x)
+
+unused:
+
+B1: -Grany(x,y) v Mama(x,f(x,y))
+B2: -Grany(x,y) v Mama(f(x,y),y)
+
+C: -mama(x,y) v -isEcologist(y) v isEcologist(x))
+
+D: granny(john,mary)
+
+-F: -isEcologsit(jonh)
+
+
+A with E -> 
+1: isEcologist(mary)
+
+B1 with D and B2 with D ->
+2: Mama(jonh,f(jonh,mary))
+3: Mama(f(jonh,mary),mary)
+
+C with 2 and C with 3 -> 
+4: -isEcologist(f(jonh,mary)) v isEcologist(jonh)
+5: -isEcologist(mary) v isEcologist(f(jonh,mary))
+
+1 with 5 ->
+
+6: isEcologist(f(jonh,mary))
+
+6 with 4 ->
+
+7: isEcologist(jonh)
+
+7 with -F ->
+
+8: []
+
+
+
+
+

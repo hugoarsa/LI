@@ -1,0 +1,112 @@
+=======================================================================
+FIRST-ORDER LOGIC.
+
+
+Problem 5. (3 points).                                   @n@nota5:
+For each one of the following statements, indicate if it is true(T) or false(F) for first-order logic.
+Give no explanations why. Below always F,G,H are formulas and I is an interpretation.
+
+ T  There are infinitely many different formulas, even if there is only one predicate symbol.
+ F  Given I and F, it is decidable in linear time whether I |=  F.
+ F  Given I and F, it is decidable whether I |=  F.
+ F  Given F, it is decidable in polynomial time whether F is satisfiable.
+ F  Given F, it is decidable whether F is satisfiable.
+ T  F |= G iff F & -G is unsatisfiable.
+ T  F is a tautology  iff  -F is unsatisfiable.
+ 
+ 	
+ (estas estan bien ahora pero las puse al reves originalmente 
+ F  Given F and G, it is co-semi-decidable whether  F |= G.
+ T  Given F and G, it is semi-decidable whether F and G are logically equivalent,
+ 
+ 
+ 
+ F  We can express with a formula F that all models of F have a domain of size at most 3.
+ T  Given a formula F and an interpretation I with domain D_I of size 4, it is decidable whether I |=  F.
+
+
+------------------------------------------------------------------------------------
+Problem 6. (3 points).                                   @n@nota6:
+6a) Is the formula  Ax ( -p(x,f(x))  &  -p(f(x),x)  &  ( Ey p(f(x),y)  v  Ez p(z,f(x)) )   )  satisfiable?  Prove it.
+
+Ax ( -p(x,f(x))  &  -p(f(x),x)  &  ( Ey p(f(x),y)  v  Ez p(z,f(x)) )   )
+
+Dominio: {a,b}
+
+f(a) = a
+f(b) = b
+
+p(a,a) = 0
+p(a,b) = 1
+p(b,a) = 1
+p(b,b) = 0
+
+6b) 
+Let I1 and I2 be first-order interpretations with domains D_I1 = Q (the rationals) and D_I2 = R (the reals).
+In both interpretations, the unary function symbol "square" is interpreted as square_I(x) = x*x. 
+Write a formula F in FOLE (first-order logic with equality), using no other predicate or function symbols
+apart from square, such that F is true in one of the interpretations and false in the other one.
+
+AxEy square(square(y)) = square(x)
+
+cierto en R y false en Q
+
+
+
+------------------------------------------------------------------------------------
+Problem 7. (4 points).                                   @n@nota7:
+Formalize and prove by resolution that sentence F is a logical consequence of the first five:
+
+A: John eats all kind of food.
+B: If a person eats something that kills, then that person is dead
+C: Everything that does not kill and is eaten by someone is food
+D: Mary is not dead
+E: Mary eats peanuts
+F: John eats peanuts.
+
+Predicates:
+    kills(x) //x kills
+    dead(x) //x is dead
+    eats(x,y) //x eats y
+    food(x) //x is food
+    
+C1: -food(x) v eats(john,x)
+
+C2: -eats(p,t) v -kills(t) v dead(p)
+
+C3: kills(f) v -eats(s,f) v food(f)
+
+C4: -dead(mary)
+
+C5: eats(mary,peanuts)
+
+C6: -eats(john,peanuts)
+
+
+C2 with C4 with mgu {mary=p}
+
+1: -eats(mary,t) v -kills(t)
+
+C5 with 1 with mgu {t=peanuts}
+
+2: -kills(peanuts)
+
+2 with C3 with mgu {f=peanuts}
+
+3:-eats(s,peanuts) v food(peanuts)
+
+3 with C5 with mgu {s=mary}
+
+4: food(peanuts)
+
+C6 with C1 with mgu {x=peanuts}
+
+5: -food(peanuts)
+
+5 and 4 with no unification
+
+[]
+
+
+
+-----------------------------------------------------------------------
